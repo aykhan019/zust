@@ -79,10 +79,6 @@ If you encounter any issues or need support, please check the existing issues on
 
 Zust Social Media App is released under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code as per the terms of the license.
 
----
-
-Congratulations! You now have Zust Social Media App set up and ready to use with Visual Studio 2022. If you have any questions or need further assistance, please refer to the documentation or reach out to the community for support. Happy coding! 🚀
-
 ## Project Showcase
 
 Check out this YouTube video showcasing Zust Social Media App:
