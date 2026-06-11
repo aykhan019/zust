@@ -160,14 +160,6 @@ To present the app publicly with content, set `SEED_DEMO_DATA=true` for one run.
 
 Demo accounts use the password **`Demo@1234`** (e.g. `aladdin@zust.demo`, `maya@zust.demo`, `liam@zust.demo`, `sofia@zust.demo`). Remove `SEED_DEMO_DATA` after the first successful run.
 
-## Screenshots
-
-> _Add screenshots / a short demo GIF here for your portfolio._
->
-> | Feed | Profile | Chat |
-> |------|---------|------|
-> | _(screenshot)_ | _(screenshot)_ | _(screenshot)_ |
-
 ## License
 
 Zust is released under the [MIT License](LICENSE).
