@@ -103,6 +103,17 @@ namespace Zust.Business.Concrete
         }
 
         /// <summary>
+        /// Retrieves a single page of users excluding the specified user, paginated at the database.
+        /// </summary>
+        /// <param name="userId">The ID of the user to be excluded from the result.</param>
+        /// <param name="skip">Number of users to skip.</param>
+        /// <param name="take">Maximum number of users to return.</param>
+        public async Task<IEnumerable<User>> GetUsersOtherThanAsync(string userId, int skip, int take)
+        {
+            return await _userDal.GetUsersOtherThanAsync(userId, skip, take);
+        }
+
+        /// <summary>
         /// Deletes a user by their ID asynchronously.
         /// </summary>
         /// <param name="userId">The ID of the user to be deleted.</param>

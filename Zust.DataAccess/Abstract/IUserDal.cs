@@ -8,5 +8,13 @@ namespace Zust.DataAccess.Abstract
     /// </summary>
     public interface IUserDal : IEntityRepository<User>
     {
+        /// <summary>
+        /// Retrieves a page of users excluding the given user, ordered by username and paginated
+        /// at the database (OFFSET/LIMIT) so the whole users table is never loaded into memory.
+        /// </summary>
+        /// <param name="excludeUserId">The id of the user to exclude (typically the current user).</param>
+        /// <param name="skip">Number of users to skip.</param>
+        /// <param name="take">Maximum number of users to return.</param>
+        Task<IEnumerable<User>> GetUsersOtherThanAsync(string excludeUserId, int skip, int take);
     }
 }

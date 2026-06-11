@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Zust.Business.Abstract;
+using Zust.DataAccess.Abstract;
 using Zust.Entities.Models;
 using Zust.Web.Abstract;
 using Zust.Web.DTOs;
@@ -44,6 +45,16 @@ namespace Zust.Web.Controllers.ApiControllers
         private readonly IMapper _mapper;
 
         /// <summary>
+        /// Friendship data access, used for DB-side filtered relationship lookups.
+        /// </summary>
+        private readonly IFriendshipDal _friendshipDal;
+
+        /// <summary>
+        /// Friend request data access, used for DB-side filtered pending-request lookups.
+        /// </summary>
+        private readonly IFriendRequestDal _friendRequestDal;
+
+        /// <summary>
         /// Initializes a new instance of the UserController class.
         /// </summary>
         /// <param name="userService">The user service used for user-related operations.</param>
@@ -51,11 +62,15 @@ namespace Zust.Web.Controllers.ApiControllers
         /// <param name="friendRequestService">The friend request service used for friend request-related operations.</param>
         /// <param name="mediaService">The media service used for media-related operations.</param>
         /// <param name="mapper">The mapper used for object mapping.</param>
+        /// <param name="friendshipDal">Friendship data access for DB-side filtered lookups.</param>
+        /// <param name="friendRequestDal">Friend request data access for DB-side filtered lookups.</param>
         public UserController(IUserService userService,
                               IFriendshipService friendshipService,
                               IFriendRequestService friendRequestService,
                               IMediaService mediaService,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IFriendshipDal friendshipDal,
+                              IFriendRequestDal friendRequestDal)
         {
             _userService = userService;
 
@@ -66,6 +81,10 @@ namespace Zust.Web.Controllers.ApiControllers
             _mediaService = mediaService;
 
             _mapper = mapper;
+
+            _friendshipDal = friendshipDal;
+
+            _friendRequestDal = friendRequestDal;
         }
 
         /// <summary>
@@ -107,25 +126,24 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var currentUserId = currentUser.Id;
 
-                var users = await _userService.GetAllUsersOtherThanAsync(currentUserId);
+                // Page at the database (OFFSET/LIMIT) instead of loading every user and slicing in
+                // memory. This endpoint previously mapped the entire users table per request.
+                var users = await _userService.GetUsersOtherThanAsync(currentUserId, startIndex, userCount);
 
                 var userDTOs = _mapper.Map<List<UserDTO>>(users);
 
-                // Sequential await: the scoped DbContext is not thread-safe, so these calls must
-                // not overlap. (Previously `ForEach(async ...)` ran them as fire-and-forget
-                // async-void tasks, which both raced the DbContext and crashed the process on error.)
+                // Batch the friendship / pending-request lookups: one query each, then resolve
+                // in memory. Previously this did two DB round-trips per user (an N+1 that opened
+                // hundreds of connections and took ~60s for a single page of users).
+                var (followingIds, pendingReceiverIds) = await GetRelationshipSetsAsync(currentUserId);
+
                 foreach (var user in userDTOs)
                 {
-                    user.IsFriend = await _friendshipService.IsFriendAsync(currentUserId, user.Id);
-                    if (!user.IsFriend)
-                    {
-                        user.HasFriendRequestPending = await _friendRequestService.HasRequestPendingAsync(currentUserId, user.Id, Status.Pending);
-                    }
+                    user.IsFriend = followingIds.Contains(user.Id);
+                    user.HasFriendRequestPending = !user.IsFriend && pendingReceiverIds.Contains(user.Id);
                 }
 
-                var range = new Range(startIndex, startIndex + userCount);
-
-                return Ok(userDTOs.Take(range));
+                return Ok(userDTOs);
             }
             catch (Exception ex)
             {
@@ -197,15 +215,13 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var userDTOs = _mapper.Map<List<UserDTO>>(filteredUsers);
 
-                // Sequential await on the shared DbContext (see GetUsers above for rationale).
+                // Batch the friendship / pending-request lookups (see GetUsers for rationale).
+                var (followingIds, pendingReceiverIds) = await GetRelationshipSetsAsync(currentUser.Id);
+
                 foreach (var user in userDTOs)
                 {
-                    user.IsFriend = await _friendshipService.IsFriendAsync(currentUser.Id, user.Id);
-
-                    if (!user.IsFriend)
-                    {
-                        user.HasFriendRequestPending = await _friendRequestService.HasRequestPendingAsync(currentUser.Id, user.Id, Status.Pending);
-                    }
+                    user.IsFriend = followingIds.Contains(user.Id);
+                    user.HasFriendRequestPending = !user.IsFriend && pendingReceiverIds.Contains(user.Id);
                 }
 
                 return Ok(userDTOs);
@@ -214,6 +230,32 @@ namespace Zust.Web.Controllers.ApiControllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Loads, in two queries, the sets needed to decide each user's relationship to the
+        /// current user: the ids the current user follows, and the receiver ids of their pending
+        /// sent friend requests. Used to avoid per-user N+1 lookups when listing users.
+        /// </summary>
+        private async Task<(HashSet<string> FollowingIds, HashSet<string> PendingReceiverIds)> GetRelationshipSetsAsync(string currentUserId)
+        {
+            // Filter both lookups at the database (WHERE ...) and select only the ids we need.
+            // Going through the services here loaded whole tables (all friendships' users, the
+            // entire friend-requests table) and filtered in memory.
+            var followingIds = (await _friendshipDal.GetAllAsync(f => f.UserId == currentUserId))
+                                   .Select(f => f.FriendId)
+                                   .Where(id => id is not null)
+                                   .Select(id => id!)
+                                   .ToHashSet();
+
+            var pendingReceiverIds = (await _friendRequestDal.GetAllAsync(
+                                          fr => fr.SenderId == currentUserId && fr.Status == Status.Pending))
+                                      .Select(fr => fr.ReceiverId)
+                                      .Where(id => id is not null)
+                                      .Select(id => id!)
+                                      .ToHashSet();
+
+            return (followingIds, pendingReceiverIds);
         }
 
         /// <summary>

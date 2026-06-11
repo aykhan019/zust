@@ -20,15 +20,24 @@ namespace Zust.Business.Concrete
         private readonly IUserService _userService;
 
         /// <summary>
+        /// Private field for the user data access layer, used to fetch a filtered set of users
+        /// (a WHERE ... IN query) instead of loading the entire users table into memory.
+        /// </summary>
+        private readonly IUserDal _userDal;
+
+        /// <summary>
         /// Initializes a new instance of the FriendshipService class with the specified FriendshipDal and UserService.
         /// </summary>
         /// <param name="friendshipDal">The data access layer for handling friendships.</param>
         /// <param name="userService">The service responsible for user-related operations.</param>
-        public FriendshipService(IFriendshipDal friendshipDal, IUserService userService)
+        /// <param name="userDal">The data access layer for fetching users by id.</param>
+        public FriendshipService(IFriendshipDal friendshipDal, IUserService userService, IUserDal userDal)
         {
             _friendshipDal = friendshipDal;
 
             _userService = userService;
+
+            _userDal = userDal;
         }
 
         /// <summary>
@@ -48,15 +57,19 @@ namespace Zust.Business.Concrete
         /// <returns>A collection of User objects representing all followers of the user.</returns>
         public async Task<IEnumerable<User?>> GetAllFollowersOfUserAsync(string userId)
         {
-            var friendships = await _friendshipDal.GetAllAsync();
+            // Filter friendships at the database (WHERE FriendId = userId) rather than loading the
+            // whole table and filtering in memory.
+            var friendships = await _friendshipDal.GetAllAsync(f => f.FriendId == userId);
 
-            var followerIds = friendships.Where(f => f.FriendId == userId).Select(f => f.UserId).ToHashSet();
+            var followerIds = friendships.Select(f => f.UserId).ToHashSet();
 
-            // Batch-load in a single query instead of one user lookup per follower (an N+1 that
-            // both raced the shared DbContext via Task.WhenAll and was very slow sequentially).
-            var followers = (await _userService.GetAllUsersAsync())
-                                .Where(u => followerIds.Contains(u.Id))
-                                .ToList();
+            if (followerIds.Count == 0)
+            {
+                return Enumerable.Empty<User?>();
+            }
+
+            // Fetch just the follower rows with a single WHERE ... IN query.
+            var followers = await _userDal.GetAllAsync(u => followerIds.Contains(u.Id));
 
             return followers;
         }
@@ -68,14 +81,18 @@ namespace Zust.Business.Concrete
         /// <returns>A collection of User objects representing all followings of the user.</returns>
         public async Task<IEnumerable<User?>> GetAllFollowingsOfUserAsync(string userId)
         {
-            var friendships = await _friendshipDal.GetAllAsync();
+            // Filter friendships at the database (WHERE UserId = userId).
+            var friendships = await _friendshipDal.GetAllAsync(f => f.UserId == userId);
 
-            var followingIds = friendships.Where(f => f.UserId == userId).Select(f => f.FriendId).ToHashSet();
+            var followingIds = friendships.Select(f => f.FriendId).ToHashSet();
 
-            // Batch-load in a single query instead of one user lookup per following (N+1).
-            var followings = (await _userService.GetAllUsersAsync())
-                                .Where(u => followingIds.Contains(u.Id))
-                                .ToList();
+            if (followingIds.Count == 0)
+            {
+                return Enumerable.Empty<User?>();
+            }
+
+            // Fetch just the following rows with a single WHERE ... IN query.
+            var followings = await _userDal.GetAllAsync(u => followingIds.Contains(u.Id));
 
             return followings;
         }

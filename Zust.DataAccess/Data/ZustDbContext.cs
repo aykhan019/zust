@@ -27,6 +27,15 @@ namespace Zust.Core.Concrete.EntityFramework
         }
 
         /// <summary>
+        /// Connection string resolved once per process. Building a ConfigurationBuilder and
+        /// reading the appsettings JSON files from disk is expensive, and OnConfiguring runs on
+        /// every `new ZustDbContext()` — which the repositories do on every single query. Caching
+        /// it turns each repository call from a disk-I/O + config-build into a cheap lookup.
+        /// </summary>
+        private static string? _cachedConnectionString;
+        private static readonly object _connectionStringLock = new();
+
+        /// <summary>
         /// Overrides the default configuration of the DbContext options.
         /// Sets the database connection based on the appsettings.json file.
         /// </summary>
@@ -35,24 +44,47 @@ namespace Zust.Core.Concrete.EntityFramework
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // This path is used at design time (e.g. `dotnet ef migrations`).
-                // Runtime configuration is supplied via DI in Program.cs.
+                // This path is used by `new ZustDbContext()` (repositories) and at design time
+                // (e.g. `dotnet ef migrations`). Runtime DI configuration is supplied in Program.cs.
+                optionsBuilder.UseNpgsql(
+                    GetConnectionString(),
+                    npgsql => npgsql.EnableRetryOnFailure());
+            }
+
+            base.OnConfiguring(optionsBuilder);
+        }
+
+        /// <summary>
+        /// Resolves the connection string once and caches it for the lifetime of the process.
+        /// </summary>
+        private static string GetConnectionString()
+        {
+            if (_cachedConnectionString is not null)
+            {
+                return _cachedConnectionString;
+            }
+
+            lock (_connectionStringLock)
+            {
+                if (_cachedConnectionString is not null)
+                {
+                    return _cachedConnectionString;
+                }
+
                 var configuration = new ConfigurationBuilder()
                         .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                        .AddJsonFile(Constants.AppSettingsFile, optional: true, reloadOnChange: true)
-                        .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile(Constants.AppSettingsFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
                         .AddEnvironmentVariables()
                         .Build();
 
                 // Read the connection string (ConnectionStrings:Default or DATABASE_URL).
                 // Falls back to a local placeholder so `migrations add` works without a live DB.
-                var connectionString = DbConnectionHelper.Resolve(configuration)
+                _cachedConnectionString = DbConnectionHelper.Resolve(configuration)
                     ?? "Host=localhost;Port=5432;Database=zust;Username=postgres;Password=postgres";
 
-                optionsBuilder.UseNpgsql(connectionString);
+                return _cachedConnectionString;
             }
-
-            base.OnConfiguring(optionsBuilder);
         }
 
         /// <summary>

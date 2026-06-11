@@ -55,6 +55,14 @@ namespace Zust.Business.Abstract
         Task<IEnumerable<User>> GetAllUsersOtherThanAsync(string userId);
 
         /// <summary>
+        /// Retrieves a single page of users excluding the specified user, paginated at the database.
+        /// </summary>
+        /// <param name="userId">The ID of the user to be excluded from the result.</param>
+        /// <param name="skip">Number of users to skip.</param>
+        /// <param name="take">Maximum number of users to return.</param>
+        Task<IEnumerable<User>> GetUsersOtherThanAsync(string userId, int skip, int take);
+
+        /// <summary>
         /// Deletes a user by their ID asynchronously.
         /// </summary>
         /// <param name="userId">The ID of the user to be deleted.</param>

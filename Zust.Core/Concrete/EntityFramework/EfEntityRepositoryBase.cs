@@ -71,7 +71,8 @@ namespace Zust.Core.Concrete.EntityFramework
         {
             using var context = new TContext();
 
-            return await context.Set<TEntity>().FirstOrDefaultAsync(filter);
+            // Read-only fetch: skip change-tracking for speed and lower memory.
+            return await context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(filter);
         }
 
         /// <summary>
@@ -83,7 +84,8 @@ namespace Zust.Core.Concrete.EntityFramework
         {
             using var context = new TContext();
 
-            var items = context.Set<TEntity>();
+            // Read-only fetch: skip change-tracking for speed and lower memory.
+            var items = context.Set<TEntity>().AsNoTracking();
 
             return filter == null ? await items.ToListAsync() : await items.Where(filter).ToListAsync();
         }

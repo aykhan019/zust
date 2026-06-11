@@ -171,7 +171,28 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var posts = await _postService.GetAllPostsForNewsFeedAsync(currentUser.Id);
 
-                return Ok(posts);
+                // Project to only the fields the feed actually renders. Returning the full Post
+                // (with its entire Identity User embedded per post) produced a ~24 MB response and
+                // leaked sensitive columns (PasswordHash, SecurityStamp, ...). Property names are
+                // camelCase to match what the client reads (post.user.imageUrl, etc.).
+                var feed = posts.Select(p => new
+                {
+                    id = p.Id,
+                    description = p.Description,
+                    hasMediaContent = p.HasMediaContent,
+                    contentUrl = p.ContentUrl,
+                    isVideo = p.IsVideo,
+                    createdAt = p.CreatedAt,
+                    userId = p.UserId,
+                    user = p.User == null ? null : new
+                    {
+                        id = p.User.Id,
+                        userName = p.User.UserName,
+                        imageUrl = p.User.ImageUrl
+                    }
+                });
+
+                return Ok(feed);
             }
             catch (Exception ex)
             {

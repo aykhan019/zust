@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Zust.Business.Abstract;
+using Zust.DataAccess.Abstract;
 using Zust.Entities.Models;
 using Zust.Web.Helpers.ConstantHelpers;
 
@@ -23,15 +24,23 @@ namespace Zust.Web.Controllers.ApiControllers
         private readonly IUserService _userService;
 
         /// <summary>
+        /// The data access layer for fetching only the users referenced by a set of notifications.
+        /// </summary>
+        private readonly IUserDal _userDal;
+
+        /// <summary>
         /// Initializes a new instance of the NotificationController class with the specified services.
         /// </summary>
         /// <param name="notificationService">The service for handling notification-related operations.</param>
         /// <param name="userService">The service for handling user-related operations.</param>
-        public NotificationController(INotificationService notificationService, IUserService userService)
+        /// <param name="userDal">The data access layer for fetching users by id.</param>
+        public NotificationController(INotificationService notificationService, IUserService userService, IUserDal userDal)
         {
             _notificationService = notificationService;
 
             _userService = userService;
+
+            _userDal = userDal;
         }
 
         /// <summary>
@@ -44,14 +53,28 @@ namespace Zust.Web.Controllers.ApiControllers
             try
             {
                 var notifications = (await _notificationService.GetAllNotificationsOfUserAsync(userId)).ToList();
-                
-                // Sequential await on the shared DbContext (a `ForEach(async ...)` here ran these
-                // as fire-and-forget tasks that raced the DbContext and could crash the process).
+
+                // Load only the users referenced by these notifications, in one WHERE ... IN query,
+                // then assign from an in-memory lookup. (Loading the entire users table to resolve
+                // a handful of referenced users was needlessly slow.)
+                var referencedUserIds = notifications
+                    .SelectMany(n => new[] { n.ToUserId, n.FromUserId })
+                    .Where(id => id is not null)
+                    .Distinct()
+                    .ToHashSet();
+
+                var usersById = referencedUserIds.Count == 0
+                    ? new Dictionary<string, User>()
+                    : (await _userDal.GetAllAsync(u => referencedUserIds.Contains(u.Id)))
+                          .GroupBy(u => u.Id)
+                          .ToDictionary(g => g.Key, g => g.First());
+
                 foreach (var notification in notifications)
                 {
-                    notification.ToUser = await _userService.GetUserByIdAsync(notification.ToUserId);
-
-                    notification.FromUser = await _userService.GetUserByIdAsync(notification.FromUserId);
+                    usersById.TryGetValue(notification.ToUserId, out var toUser);
+                    usersById.TryGetValue(notification.FromUserId, out var fromUser);
+                    notification.ToUser = toUser;
+                    notification.FromUser = fromUser;
                 }
 
                 return Ok(notifications);

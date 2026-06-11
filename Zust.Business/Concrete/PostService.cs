@@ -30,13 +30,26 @@ namespace Zust.Business.Concrete
         private readonly ICommentService _commentService;
 
         /// <summary>
+        /// Private field for the user data access layer, used to batch-load post authors with a
+        /// single WHERE ... IN query instead of loading the entire users table.
+        /// </summary>
+        private readonly IUserDal _userDal;
+
+        /// <summary>
+        /// Maximum number of posts loaded for the news feed. The client shows ~10 at a time;
+        /// loading the entire posts table here was the dominant source of feed slowness.
+        /// </summary>
+        private const int FeedPostLimit = 50;
+
+        /// <summary>
         /// Initializes a new instance of the PostService class with the specified dependencies.
         /// </summary>
         /// <param name="postDal">The data access layer for handling posts.</param>
         /// <param name="userService">The service responsible for user-related operations.</param>
         /// <param name="likeService">The service responsible for handling likes.</param>
         /// <param name="commentService">The service responsible for handling comments.</param>
-        public PostService(IPostDal postDal, IUserService userService, ILikeService likeService, ICommentService commentService)
+        /// <param name="userDal">The data access layer for fetching post authors by id.</param>
+        public PostService(IPostDal postDal, IUserService userService, ILikeService likeService, ICommentService commentService, IUserDal userDal)
         {
             _postDal = postDal;
 
@@ -45,6 +58,8 @@ namespace Zust.Business.Concrete
             _likeService = likeService;
 
             _commentService = commentService;
+
+            _userDal = userDal;
         }
 
         /// <summary>
@@ -64,7 +79,30 @@ namespace Zust.Business.Concrete
         /// <returns>A collection of Post objects representing the posts for the news feed.</returns>
         public async Task<IEnumerable<Post>> GetAllPostsForNewsFeedAsync(string currentUserId)
         {
-            var posts = (await GetAllPostsAsync()).Where(p => p.UserId != currentUserId);
+            // Fetch only the most recent posts at the database (ordered + limited), instead of
+            // loading every post in the table and filtering/slicing in memory.
+            var posts = (await _postDal.GetRecentForFeedAsync(currentUserId, FeedPostLimit)).ToList();
+
+            // Batch-load just these posts' authors with a single WHERE ... IN query.
+            var authorIds = posts.Select(p => p.UserId)
+                                 .Where(id => id is not null)
+                                 .Distinct()
+                                 .ToHashSet();
+
+            if (authorIds.Count > 0)
+            {
+                var authorsById = (await _userDal.GetAllAsync(u => authorIds.Contains(u.Id)))
+                                      .GroupBy(u => u.Id)
+                                      .ToDictionary(g => g.Key, g => g.First());
+
+                foreach (var p in posts)
+                {
+                    if (p.UserId is not null && authorsById.TryGetValue(p.UserId, out var author))
+                    {
+                        p.User = author;
+                    }
+                }
+            }
 
             return posts;
         }
