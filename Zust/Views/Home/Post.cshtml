@@ -203,7 +203,7 @@
                         }
                     })
                     .catch(error => {
-                        alert('Error liking the post:', error);
+                        showError(error);
                         likeButton.classList.toggle('liked');
                     });
 
@@ -216,7 +216,7 @@
                         }
                     })
                     .catch(error => {
-                        alert('Error unliking the post:', error);
+                        showError(error);
                         likeButton.classList.toggle('liked');
                     });
                 likeButton.classList.remove("liked");

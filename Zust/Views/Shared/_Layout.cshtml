@@ -133,7 +133,7 @@
                             </div>
                             <div class="option-item">
                                 <div class="dropdown messages-nav-item">
-                                    <a href="/home/messages">
+                                    <a href="/home/chats">
                                         <div class="messages-btn">
                                             <i class="flaticon-email"></i>
                                             @*Number of Messages*@
@@ -369,7 +369,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="view-all-messages-btn">
-                                                    <a href="/home/messages" class="default-btn">View All Messages</a>
+                                                    <a href="/home/chats" class="default-btn">View All Messages</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -688,8 +688,10 @@
         var users = await makeAjaxRequest(`/api/Chat/GetChats?userId=${currentUserId}`, "GET");
         if (users != null){
             users.forEach(user => {
-                var html = createChatHtml(user);
-                chats.innerHTML += html;
+                if (!user) {
+                    return; // skip null entries (chat partner with no matching account)
+                }
+                chats.innerHTML += createChatHtml(user);
             });
         }
         else{
@@ -712,7 +714,7 @@
                     resolve(response);
                 },
                 error: function (error) {
-                    reject(new Error(xhr.responseText));
+                    reject(new Error(error && error.responseText ? error.responseText : "Failed to load special users"));
                 }
             });
         });
@@ -748,9 +750,11 @@
         if (specialUsers != null && specialUsers.length > 0) {
             var htmlContainer = '';
             for (var i = 0; i < specialUsers.length; i++) {
-                var specialUser = specialUsers[i]
-                var html = createSpecialUserHtml(specialUser);
-                htmlContainer += html;
+                var specialUser = specialUsers[i];
+                if (!specialUser) {
+                    continue; // skip null entries (special-user id with no matching account)
+                }
+                htmlContainer += createSpecialUserHtml(specialUser);
             }
             container.innerHTML = htmlContainer;
         }
@@ -767,14 +771,21 @@
 
         var activeItem = localStorage.getItem('activeMenuItem');
 
-        // If an active menu item is found, add the "active" class to it
+        // If an active menu item is found, add the "active" class to it.
+        // Guard every lookup: the stored id may be missing, non-numeric, or point at an
+        // element that does not exist on the current page (this script runs on every page).
         if (activeItem) {
             navLinks.forEach(i => {
                 i.classList.remove('active');
-            })
-            var id = parseInt(activeItem.replace("#", ""));
-            document.getElementById(`${id}`).classList.add("active");
-            localStorage.setItem('activeMenuItem', '#' + navLinks[0].id);
+            });
+            var activeId = activeItem.replace("#", "");
+            var activeEl = activeId ? document.getElementById(activeId) : null;
+            if (activeEl) {
+                activeEl.classList.add("active");
+            }
+            if (navLinks.length > 0 && navLinks[0].id) {
+                localStorage.setItem('activeMenuItem', '#' + navLinks[0].id);
+            }
         }
 
         navLinks.forEach(function (link) {

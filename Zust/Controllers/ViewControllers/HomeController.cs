@@ -172,14 +172,13 @@ namespace Zust.Web.Controllers.ViewControllers
 
             if (messages != null)
             {
-                var messageTasks = messages.Select(async m =>
+                // Sequential: shared scoped DbContext does not allow concurrent operations.
+                foreach (var m in messages)
                 {
                     m.SenderUser = await _userService.GetUserByIdAsync(m.SenderUserId);
 
                     m.ReceiverUser = await _userService.GetUserByIdAsync(m.ReceiverUserId);
-                });
-
-                await Task.WhenAll(messageTasks);
+                }
 
                 messages = messages.OrderBy(m => m.DateSent).ToList();
 

@@ -231,10 +231,12 @@ namespace Zust.Web.Controllers.ApiControllers
             {
                 var comments = (await _commentService.GetCommentsOfPostAsync(postId)).ToList();
 
-                comments.ForEach(async comment =>
+                // Sequential await on the shared DbContext (a `ForEach(async ...)` here ran these
+                // as fire-and-forget tasks that raced the DbContext and could crash the process).
+                foreach (var comment in comments)
                 {
                     comment.User = await _userService.GetUserByIdAsync(comment.UserId);
-                });
+                }
 
                 return Ok(comments);
             }

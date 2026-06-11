@@ -161,21 +161,24 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var currentUser = await UserHelper.GetCurrentUserAsync(HttpContext);
 
-                var usersTasks = list.Select(async c =>
+                // Sequential: shared scoped DbContext does not allow concurrent operations
+                // (the previous Task.WhenAll raced the context and made this endpoint fail).
+                var users = new List<User?>(list.Count);
+                foreach (var c in list)
                 {
                     if (c.SenderUserId != currentUser.Id)
                     {
-                        return await _userService.GetUserByIdAsync(c.SenderUserId);
+                        users.Add(await _userService.GetUserByIdAsync(c.SenderUserId));
                     }
                     else if (c.ReceiverUserId != currentUser.Id)
                     {
-                        return await _userService.GetUserByIdAsync(c.ReceiverUserId);
+                        users.Add(await _userService.GetUserByIdAsync(c.ReceiverUserId));
                     }
-
-                    return null; // Return null for cases when neither SenderUserId nor ReceiverUserId matches the currentUser's Id
-                });
-
-                var users = await Task.WhenAll(usersTasks);
+                    else
+                    {
+                        users.Add(null); // neither sender nor receiver matched the current user
+                    }
+                }
 
                 return Ok(users);
             }

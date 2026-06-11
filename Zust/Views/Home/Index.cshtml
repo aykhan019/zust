@@ -709,7 +709,7 @@
                         }
                     })
                     .catch(error => {
-                        alert('Error liking the post:', error);
+                        showError(error);
                         likeButton.classList.toggle('liked');
                     });
 
@@ -722,7 +722,7 @@
                         }
                     })
                     .catch(error => {
-                        alert('Error unliking the post:', error);
+                        showError(error);
                         likeButton.classList.toggle('liked');
                     });
                     likeButton.classList.remove("liked");
@@ -801,7 +801,7 @@
             addPostsToView(postsToLoad)
             stopLoaderSpinner();
         } catch (error) {
-            alert("Error occurred: " + error.responseText);
+            showError(error);
             stopLoaderSpinner();
         }
     }

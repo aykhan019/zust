@@ -111,14 +111,17 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var userDTOs = _mapper.Map<List<UserDTO>>(users);
 
-                userDTOs.ForEach(async user =>
+                // Sequential await: the scoped DbContext is not thread-safe, so these calls must
+                // not overlap. (Previously `ForEach(async ...)` ran them as fire-and-forget
+                // async-void tasks, which both raced the DbContext and crashed the process on error.)
+                foreach (var user in userDTOs)
                 {
                     user.IsFriend = await _friendshipService.IsFriendAsync(currentUserId, user.Id);
                     if (!user.IsFriend)
                     {
                         user.HasFriendRequestPending = await _friendRequestService.HasRequestPendingAsync(currentUserId, user.Id, Status.Pending);
                     }
-                });
+                }
 
                 var range = new Range(startIndex, startIndex + userCount);
 
@@ -194,7 +197,8 @@ namespace Zust.Web.Controllers.ApiControllers
 
                 var userDTOs = _mapper.Map<List<UserDTO>>(filteredUsers);
 
-                userDTOs.ForEach(async user =>
+                // Sequential await on the shared DbContext (see GetUsers above for rationale).
+                foreach (var user in userDTOs)
                 {
                     user.IsFriend = await _friendshipService.IsFriendAsync(currentUser.Id, user.Id);
 
@@ -202,7 +206,7 @@ namespace Zust.Web.Controllers.ApiControllers
                     {
                         user.HasFriendRequestPending = await _friendRequestService.HasRequestPendingAsync(currentUser.Id, user.Id, Status.Pending);
                     }
-                });
+                }
 
                 return Ok(userDTOs);
             }

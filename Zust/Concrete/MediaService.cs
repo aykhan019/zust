@@ -24,13 +24,20 @@ namespace Zust.Web.Concrete
 
         /// <summary>
         /// Cloudinary instance for interacting with the Cloudinary service.
+        /// Null when Cloudinary credentials are not configured (e.g. local dev without secrets).
         /// </summary>
-        private readonly Cloudinary _cloudinary;
+        private readonly Cloudinary? _cloudinary;
 
         /// <summary>
         /// Initializes a new instance of the MediaService class with the provided configuration.
         /// </summary>
         /// <param name="configuration">The configuration object providing access to Cloudinary settings.</param>
+        /// <remarks>
+        /// This constructor never throws when Cloudinary is unconfigured. Doing so would take down
+        /// every endpoint whose dependency graph touches <see cref="IMediaService"/> — including
+        /// read-only endpoints (feed, followers, profile) that never upload anything. Instead the
+        /// service is created in a disabled state and only <see cref="UploadMediaAsync"/> fails fast.
+        /// </remarks>
         public MediaService(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -42,11 +49,10 @@ namespace Zust.Web.Concrete
                 || string.IsNullOrWhiteSpace(_cloudinarySettings.ApiKey)
                 || string.IsNullOrWhiteSpace(_cloudinarySettings.ApiSecret))
             {
-                // Cloudinary is not configured (e.g. local dev without credentials).
-                // The app still starts; media uploads will fail fast at call time.
-                throw new InvalidOperationException(
-                    "Cloudinary is not configured. Set CloudinarySettings (CloudName, ApiKey, ApiSecret) " +
-                    "via environment variables or appsettings.Development.json to enable media uploads.");
+                // Cloudinary is not configured. Leave _cloudinary null; uploads will fail fast
+                // at call time while everything else keeps working.
+                _cloudinary = null;
+                return;
             }
 
             Account account = new(
@@ -65,6 +71,14 @@ namespace Zust.Web.Concrete
         /// <returns>The URL of the uploaded file.</returns>
         public async Task<string> UploadMediaAsync(IFormFile file)
         {
+            if (_cloudinary is null)
+            {
+                // Fail fast only when an upload is actually attempted.
+                throw new InvalidOperationException(
+                    "Cloudinary is not configured. Set CloudinarySettings (CloudName, ApiKey, ApiSecret) " +
+                    "via environment variables or appsettings.Development.json to enable media uploads.");
+            }
+
             // Check the file type
             var fileType = file.ContentType;
 

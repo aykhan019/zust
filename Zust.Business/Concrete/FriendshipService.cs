@@ -50,9 +50,13 @@ namespace Zust.Business.Concrete
         {
             var friendships = await _friendshipDal.GetAllAsync();
 
-            var followerIds = friendships.Where(f => f.FriendId == userId).Select(f => f.UserId).ToList();
+            var followerIds = friendships.Where(f => f.FriendId == userId).Select(f => f.UserId).ToHashSet();
 
-            var followers = await Task.WhenAll(followerIds.Select(id => _userService.GetUserByIdAsync(id)));
+            // Batch-load in a single query instead of one user lookup per follower (an N+1 that
+            // both raced the shared DbContext via Task.WhenAll and was very slow sequentially).
+            var followers = (await _userService.GetAllUsersAsync())
+                                .Where(u => followerIds.Contains(u.Id))
+                                .ToList();
 
             return followers;
         }
@@ -66,9 +70,12 @@ namespace Zust.Business.Concrete
         {
             var friendships = await _friendshipDal.GetAllAsync();
 
-            var followingIds = friendships.Where(f => f.UserId == userId).Select(f => f.FriendId).ToList();
+            var followingIds = friendships.Where(f => f.UserId == userId).Select(f => f.FriendId).ToHashSet();
 
-            var followings = await Task.WhenAll(followingIds.Select(id => _userService.GetUserByIdAsync(id)));
+            // Batch-load in a single query instead of one user lookup per following (N+1).
+            var followings = (await _userService.GetAllUsersAsync())
+                                .Where(u => followingIds.Contains(u.Id))
+                                .ToList();
 
             return followings;
         }

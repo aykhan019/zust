@@ -42,6 +42,16 @@ function showToast(message, color) {
     });
 }
 
+// Non-blocking error notification. Replaces blocking alert() popups that leaked raw
+// server exception text (or "undefined") straight to the user.
+function showError(error) {
+    var message = "Something went wrong. Please try again.";
+    if (error && typeof error.status === "number" && error.status === 0) {
+        message = "Network error. Please check your connection and try again.";
+    }
+    showToast(message, "red");
+}
+
 function getDateTimeDifference(dateTime) {
     const requestTime = new Date(dateTime);
     const currentTime = new Date();
@@ -184,7 +194,7 @@ async function getSentFriendRequests(id) {
                 resolve(data);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
                 reject(false);
             }
         });
@@ -200,7 +210,7 @@ function sendFriendRequest(receiverId) {
                 resolve(friendRequestNotificiationVm);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
                 reject(false);
             }
         });
@@ -216,7 +226,7 @@ function cancelFriendRequest(receiverId) {
                 resolve(true);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
                 reject(false);
             }
         });
@@ -232,7 +242,7 @@ function removeFriend(friendId) {
                 resolve(true);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
                 reject(false);
             }
         });

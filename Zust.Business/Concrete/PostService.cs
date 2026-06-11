@@ -77,8 +77,18 @@ namespace Zust.Business.Concrete
         {
             var posts = (await _postDal.GetAllAsync()).ToList();
 
-            // Load the user information for each post asynchronously
-            await Task.WhenAll(posts.Select(async p => p.User = await _userService.GetUserByIdAsync(p.UserId)));
+            // Batch-load post authors in a single query and assign from an in-memory lookup.
+            // The previous approach fetched one user per post (an N+1 that did hundreds of
+            // round-trips to the database and made the feed time out / spin forever).
+            var usersById = (await _userService.GetAllUsersAsync())
+                                .GroupBy(u => u.Id)
+                                .ToDictionary(g => g.Key, g => g.First());
+
+            foreach (var p in posts)
+            {
+                usersById.TryGetValue(p.UserId, out var user);
+                p.User = user;
+            }
 
             return posts;
         }
@@ -114,11 +124,12 @@ namespace Zust.Business.Concrete
         {
             var posts = await GetAllPostsOfUserAsync(userId);
 
-            var tasks = posts.Select(p => _likeService.GetPostLikeCountAsync(p.Id));
-
-            int[] likeCounts = await Task.WhenAll(tasks);
-
-            int totalLikesCount = likeCounts.Sum();
+            // Sequential: shared scoped DbContext does not allow concurrent operations.
+            int totalLikesCount = 0;
+            foreach (var p in posts)
+            {
+                totalLikesCount += await _likeService.GetPostLikeCountAsync(p.Id);
+            }
 
             return totalLikesCount;
         }

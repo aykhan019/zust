@@ -45,12 +45,14 @@ namespace Zust.Web.Controllers.ApiControllers
             {
                 var notifications = (await _notificationService.GetAllNotificationsOfUserAsync(userId)).ToList();
                 
-                notifications.ForEach(async notification =>
+                // Sequential await on the shared DbContext (a `ForEach(async ...)` here ran these
+                // as fire-and-forget tasks that raced the DbContext and could crash the process).
+                foreach (var notification in notifications)
                 {
                     notification.ToUser = await _userService.GetUserByIdAsync(notification.ToUserId);
 
                     notification.FromUser = await _userService.GetUserByIdAsync(notification.FromUserId);
-                });
+                }
 
                 return Ok(notifications);
             }

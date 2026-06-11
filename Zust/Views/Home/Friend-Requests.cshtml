@@ -115,7 +115,7 @@
                     resolve(data);
                 },
                 error: function (error) {
-                    alert("Error occurred: " + error.responseText);
+                    showError(error);
                 }
             });
         });
@@ -178,7 +178,7 @@
                 await connection.invoke("SendNotification", notification, friendRequestViewModel);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
             }
         });
     }
@@ -200,7 +200,7 @@
                 await connection.invoke("SendNotification", notification, friendRequestViewModel);
             },
             error: function (error) {
-                alert("Error occurred: " + error.responseText);
+                showError(error);
             }
         });
     }
