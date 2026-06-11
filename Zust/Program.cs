@@ -26,7 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Resolve the PostgreSQL connection string from configuration / environment.
-// Priority: ConnectionStrings__Default  ->  DATABASE_URL (URI form, e.g. Supabase/Render).
+// Priority: ConnectionStrings__Default  ->  DATABASE_URL (URI form, e.g. Neon/Render).
 var connectionString = Zust.DataAccess.Helpers.DbConnectionHelper.Resolve(builder.Configuration);
 
 builder.Services.AddDbContext<ZustDbContext>(options =>
@@ -77,7 +77,7 @@ builder.Services.AddIdentity<User, Zust.Entities.Models.Role>(options =>
                 .AddDefaultTokenProviders();
 
 // Register AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 builder.Services.AddControllersWithViews();
 
 // Register SignalR
@@ -141,7 +141,7 @@ if (!string.IsNullOrWhiteSpace(port))
 var app = builder.Build();
 
 // Apply pending EF Core migrations (and seed demo data) on startup so a fresh
-// Supabase database is provisioned automatically on first deploy.
+// Neon database is provisioned automatically on first deploy.
 await DbInitializer.InitializeAsync(app.Services, app.Logger);
 
 // Trust forwarded headers before anything that depends on scheme/host.

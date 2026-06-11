@@ -1,6 +1,6 @@
 # Render Blueprint for the Zust Social Media App.
 # Deploys the ASP.NET Core app as a Docker web service.
-# Database is hosted on Supabase (PostgreSQL) — set ConnectionStrings__Default in the
+# Database is hosted on Neon (PostgreSQL) — set ConnectionStrings__Default in the
 # Render dashboard (kept out of this file so no secret is committed).
 services:
   - type: web

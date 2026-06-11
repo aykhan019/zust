@@ -2,7 +2,7 @@
 
 Zust is a full-featured social media web application built with **ASP.NET Core MVC**. Users can create profiles, share posts (text, images and video), like and comment, send and accept friend requests, chat in real time, and receive live notifications.
 
-> Originally built on .NET 6 + SQL Server, Zust has been modernized to run on **.NET 10** with **PostgreSQL (Supabase)** and is deployable to **Render** via Docker.
+> Originally built on .NET 6 + SQL Server, Zust has been modernized to run on **.NET 10** with **PostgreSQL (Neon)** and is deployable to **Render** via Docker.
 
 [![Showcase video](https://media.aykhan.net/thumbnails/step-it-academy/asp-net/task27.png)](https://www.youtube.com/watch?v=vOdeSuh_zMY)
 
@@ -16,7 +16,7 @@ Zust is a full-featured social media web application built with **ASP.NET Core M
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Local Development](#local-development)
-- [Supabase Setup](#supabase-setup)
+- [Neon Setup](#neon-setup)
 - [Render Deployment](#render-deployment)
 - [Environment Variables](#environment-variables)
 - [Demo Data](#demo-data)
@@ -43,7 +43,7 @@ Zust is a full-featured social media web application built with **ASP.NET Core M
 | Real-time    | SignalR                                               |
 | Auth         | ASP.NET Core Identity (cookie-based)                  |
 | Data         | Entity Framework Core 10 (Code First)                 |
-| Database     | PostgreSQL (Supabase)                                 |
+| Database     | PostgreSQL (Neon)                                     |
 | Media        | Cloudinary                                            |
 | Mapping      | AutoMapper                                            |
 | Hosting      | Render (Docker)                                       |
@@ -68,7 +68,7 @@ Zust.sln
 ### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- PostgreSQL 14+ running locally (or a Supabase connection string — see below)
+- A Neon (or any PostgreSQL 14+) connection string — see below
 - (Optional) A [Cloudinary](https://cloudinary.com/) account for media uploads
 
 ### Steps
@@ -101,23 +101,21 @@ The app reads its connection string from `ConnectionStrings:Default` (or a `DATA
 > dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=zust;Username=postgres;Password=postgres" --project Zust/Zust.Web.csproj
 > ```
 
-## Supabase Setup
+## Neon Setup
 
-1. Create a project at [supabase.com](https://supabase.com) and choose a strong database password.
-2. In the dashboard go to **Project Settings → Database → Connection string** and copy the connection details. You have two options:
-   - **Direct connection** (`db.<ref>.supabase.co:5432`) — best for migrations and a persistent backend, **if your host has IPv6**.
-   - **Session pooler** (`aws-0-<region>.pooler.supabase.com:5432`, user `postgres.<ref>`) — use this when your host is **IPv4-only**. **Render's free tier is IPv4, so use the session pooler.**
-3. Build an Npgsql connection string (SSL is required by Supabase):
+1. Create a project at [neon.tech](https://neon.tech) (pick a region near your Render region).
+2. In the project dashboard open **Connection Details** and enable **Pooled connection** — the host will contain `-pooler`. Use the pooled host: Render's free tier is IPv4-only and the pooler is the reliable choice.
+3. Build an Npgsql connection string (SSL is required by Neon):
 
    ```
-   Host=aws-0-<region>.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<project-ref>;Password=<your-password>;SSL Mode=Require;Trust Server Certificate=true
+   Host=ep-<id>-pooler.<region>.aws.neon.tech;Port=5432;Database=<db>;Username=<user>;Password=<your-password>;SSL Mode=Require;Trust Server Certificate=true
    ```
 
-   This is the value you set as `ConnectionStrings__Default`. (Alternatively, Zust also accepts a `DATABASE_URL` in `postgresql://user:pass@host:5432/postgres` URI form and converts it automatically, forcing SSL.)
-4. Apply migrations against Supabase:
+   This is the value you set as `ConnectionStrings__Default` (and the same value goes in `Zust/appsettings.Development.json` for local dev, since local and host share one Neon database). Alternatively, Zust also accepts a `DATABASE_URL` in `postgresql://user:pass@host/db?sslmode=require` URI form and converts it automatically, forcing SSL.
+4. Apply migrations against Neon:
 
    ```bash
-   ConnectionStrings__Default="Host=aws-0-<region>.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<project-ref>;Password=<password>;SSL Mode=Require;Trust Server Certificate=true" \
+   ConnectionStrings__Default="Host=ep-<id>-pooler.<region>.aws.neon.tech;Port=5432;Database=<db>;Username=<user>;Password=<password>;SSL Mode=Require;Trust Server Certificate=true" \
      dotnet ef database update --project Zust/Zust.Web.csproj --startup-project Zust/Zust.Web.csproj
    ```
 
@@ -145,7 +143,7 @@ The app listens on Render's `PORT`, honors `X-Forwarded-*` headers (correct HTTP
 | Variable                          | Required | Description                                                                 |
 |-----------------------------------|:--------:|-----------------------------------------------------------------------------|
 | `ASPNETCORE_ENVIRONMENT`          | ✅       | `Production` on Render, `Development` locally.                               |
-| `ConnectionStrings__Default`      | ✅       | Npgsql connection string for Supabase PostgreSQL (see Supabase Setup).       |
+| `ConnectionStrings__Default`      | ✅       | Npgsql connection string for Neon PostgreSQL (see Neon Setup).               |
 | `AppSettings__Token`              | ✅       | App token/secret used for token signing. Use a long random value.            |
 | `CloudinarySettings__CloudName`   | ✅*      | Cloudinary cloud name (*required for media uploads).                          |
 | `CloudinarySettings__ApiKey`      | ✅*      | Cloudinary API key.                                                          |

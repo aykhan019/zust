@@ -4,7 +4,7 @@ namespace Zust.DataAccess.Helpers
 {
     /// <summary>
     /// Resolves the PostgreSQL connection string from configuration / environment in a
-    /// host-agnostic way so the same code works locally, on Render and on Supabase.
+    /// host-agnostic way so the same code works locally, on Render and on Neon.
     /// </summary>
     public static class DbConnectionHelper
     {
@@ -12,7 +12,7 @@ namespace Zust.DataAccess.Helpers
         /// Resolution order:
         /// 1. <c>ConnectionStrings:Default</c> (env var <c>ConnectionStrings__Default</c> or appsettings).
         /// 2. <c>DATABASE_URL</c> in URI form (e.g. <c>postgresql://user:pass@host:5432/db</c>),
-        ///    which is what Render/Supabase expose, converted to an Npgsql keyword string.
+        ///    which is what Render/Neon expose, converted to an Npgsql keyword string.
         /// </summary>
         public static string? Resolve(IConfiguration configuration)
         {
@@ -34,7 +34,7 @@ namespace Zust.DataAccess.Helpers
 
         /// <summary>
         /// Converts a <c>postgres(ql)://</c> URI into an Npgsql keyword connection string
-        /// and forces SSL, which Supabase requires.
+        /// and forces SSL, which Neon requires.
         /// </summary>
         private static string ConvertUriToNpgsql(string databaseUrl)
         {
