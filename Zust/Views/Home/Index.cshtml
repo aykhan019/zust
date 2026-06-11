@@ -74,6 +74,15 @@
         flex-direction: column;
     }
 
+    /* The "Post is being created" spinner now lives inside the white post-form card. */
+    .post-creating {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 0;
+    }
+
     .loading-text {
         opacity: 0; /* Initially hidden */
         animation-name: fadeIn;
@@ -166,10 +175,58 @@
            .like-button.liked > * {
                 /*color: var(--red-color) !important;*/
            }
+
+    /* Hide the global copyright footer on the feed page only (this style block is scoped to
+       this page), so the fixed feed fills the viewport without a footer beneath it. */
+    .copyrights-area {
+        display: none;
+    }
+
+    /* --- Fixed feed layout ---------------------------------------------------------------
+       Pin the whole feed row to the viewport height (its exact height is set from JS via
+       --feed-height, so it works regardless of the navbar height). Each column then fills
+       that height and scrolls on its own, so the short side widgets (profile / single ad /
+       today's birthdays) stay put and never leave empty space beside the posts — only the
+       posts column actually scrolls. Disabled on small screens (where the columns stack)
+       so the page falls back to normal scrolling. */
+    @@media only screen and (min-width: 992px) {
+        #feed-row {
+            height: var(--feed-height, calc(100vh - 120px));
+            overflow: hidden;
+        }
+
+        #feed-row .feed-col {
+            height: 100%;
+            overflow-y: auto;
+            /* Thin, unobtrusive scrollbars for the columns. */
+            scrollbar-width: thin;
+        }
+
+        /* The center column keeps the create-post box and statuses in place at the top and
+           only scrolls the posts beneath them. */
+        #feed-row .news-feed-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #feed-row #posts-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden; /* the vertical scrollbar was nudging content into a tiny horizontal scroll */
+            scrollbar-width: thin;
+        }
+
+        /* The center column itself shouldn't scroll as a whole — its inner posts area does. */
+        #feed-row .col-lg-6.feed-col {
+            overflow: hidden;
+        }
+    }
 </style>
 
-<div class="row">
-    <div class="col-lg-3 col-md-12">
+<div class="row" id="feed-row">
+    <div class="col-lg-3 col-md-12 feed-col">
         <aside class="widget-area">
             @*View Profile*@
             <div class="widget widget-view-profile">
@@ -227,7 +284,7 @@
             <div class="widget widget-advertisement">
                 <h3 class="widget-title">Advertisements</h3>
 
-                @foreach (var ads in Model.Advertisements)
+                @foreach (var ads in Model.Advertisements.Take(1))
                 {
                     <a class="advertisement-image" target="_blank" href="@ads.AdvertisementUrl" onmouseover="advertisementHoverHandle(this.querySelector('img'), '@ads.LogoUrl')" onmouseout="restoreOriginalSize(this.querySelector('img'), '@ads.AdvertisementImageUrl')">
                         <img src="@ads.AdvertisementImageUrl" alt="Image">
@@ -280,33 +337,35 @@
         </aside>
     </div>
 
-    <div class="col-lg-6 col-md-12">
+    <div class="col-lg-6 col-md-12 feed-col">
         <div class="news-feed-area">
             <div id="spinner-container">
             </div>
 
-            <div class="news-feed news-feed-form" id="post-form">
-            </div>
-
-            <div class="news-feed news-feed-stories">
-                <div class="stories-title d-flex justify-content-between align-items-center">
-                    <h3>Statuses</h3>
+            <div id="posts-scroll">
+                <div class="news-feed news-feed-form" id="post-form">
                 </div>
 
-                <div class="row" id="statuses">
+                <div class="news-feed news-feed-stories">
+                    <div class="stories-title d-flex justify-content-between align-items-center">
+                        <h3>Statuses</h3>
+                    </div>
+
+                    <div class="row" id="statuses">
+                    </div>
                 </div>
-            </div>
 
-            <div id="posts-container">
-            </div>
+                <div id="posts-container">
+                </div>
 
-            <div class="load-more-posts-btn" id="loader">
-                <a onclick="loadPosts()" style="cursor:pointer;"><i class="flaticon-loading"></i> Load More Posts</a>
+                <div class="load-more-posts-btn" id="loader">
+                    <a onclick="loadPosts()" style="cursor:pointer;"><i class="flaticon-loading"></i> Load More Posts</a>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-12">
+    <div class="col-lg-3 col-md-12 feed-col">
         <aside class="widget-area">
             <div class="widget widget-weather">
                 <div class="weather-image">
@@ -320,21 +379,6 @@
                 </div>
 
                 <div id="today-birthdays">
-                </div>
-
-
-                <div class="birthday-title d-flex justify-content-between align-items-center">
-                    <h3>Recent Birthdays</h3>
-                </div>
-
-                <div id="recent-birthdays">
-                </div>
-
-                <div class="birthday-title d-flex justify-content-between align-items-center">
-                    <h3>Coming Birthdays</h3>
-                </div>
-
-                <div id="coming-birthdays">
                 </div>
             </div>
 
@@ -401,11 +445,16 @@
     var container = document.getElementById("post-form");
 
     function startSpinner() {
-        spinnerContainer.innerHTML = `
-                                                                      <div class="spinner-border custom-spinner-color" role="status" id="followers-spinner">
-                                                                                <span class="sr-only"></span>
+        // Render the spinner inside the post-form's white card (instead of a bare spinner on the
+        // gray feed background with an empty white box left below it), so the "creating" state
+        // sits on a single clean white surface.
+        container.innerHTML = `
+                                                                      <div class="post-creating">
+                                                                          <div class="spinner-border custom-spinner-color" role="status" id="followers-spinner">
+                                                                                    <span class="sr-only"></span>
+                                                                          </div>
+                                                                          <p class="loading-text mt-3">Post is being created . . .</p>
                                                                       </div>
-                                                                      <p class="loading-text mt-3">Post is being created . . .</p>
                                                                     `;
     }
 
@@ -460,7 +509,6 @@
         console.log(formData.file);
 
         startSpinner();
-        container.innerHTML = '';
 
         // Send the form data using jQuery Ajax
         $.ajax({
@@ -469,7 +517,7 @@
             data: formData,
             processData: false,
             contentType: false,
-            success: function (responsePost) {
+            success: async function (responsePost) {
                 stopSpinner();
                 setPostForm();
                 var newPost = {
@@ -482,8 +530,19 @@
                     userId: responsePost.userId,
                     user: responsePost.user
                 };
-                postsToLoad.unshift(newPost);
-                addPostsToView(postsToLoad, true);
+                // Insert the just-shared post at the very top of the feed without wiping the
+                // posts already on screen, so the user immediately sees it as the first post.
+                // (It may no longer be there after a reload, since the feed is rebuilt from the
+                // server — that's expected; this is the instant visual confirmation.)
+                var newPostHtml = await createPostHtml(newPost);
+                document.getElementById("posts-container").insertAdjacentHTML("afterbegin", newPostHtml);
+
+                // Scroll the posts area back to the top so the new post is actually in view.
+                var postsScroll = document.getElementById("posts-scroll");
+                if (postsScroll) {
+                    postsScroll.scrollTop = 0;
+                }
+
                 showToast("Post was shared successfully!", "green");
             },
             error: function (xhr, status, error) {
@@ -610,19 +669,6 @@
                                                                                 </a>
                                                                             </li>
                                                                         </ul>
-                                                                       <form class="post-footer">
-                                                                             <div class="footer-image">
-                                                                                <a href="/home/my-profile"><img src="${currentUserProfile}" class="post-profile-image" style="background-color: gray !important; max-height: 80px !important; max-width: 80px !important; border-radius: 50%;"  alt="image"></a>
-                                                                            </div>
-                                                                            <div class="form-group" style="padding-left: 90px;">
-                                                                                <textarea id="commentText-${post.id}" class="form-control" placeholder="Write a comment..."></textarea>
-                                                                                <label>
-                                                                                    <a onclick="sendComment('${post.id}')">
-                                                                                        <i class="ri-send-plane-line"></i>
-                                                                                    </a>
-                                                                                </label>
-                                                                            </div>
-                                                                        </form>
                                                                     </div>
                                                                 </div>
 
@@ -800,8 +846,14 @@
         startLoaderSpinner();
         try {
             if (allPosts.length === 0) {
-                allPosts = await getAllPosts();
-                allPosts = shuffleArray(allPosts);
+                var fetched = await getAllPosts();
+                // Put the current user's own posts at the top of the feed (newest first) so
+                // that after a refresh they immediately see what they just posted. Everyone
+                // else's posts stay shuffled below.
+                var myPosts = fetched.filter(function (p) { return p.userId === currentUserId; });
+                var otherPosts = fetched.filter(function (p) { return p.userId !== currentUserId; });
+                myPosts.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+                allPosts = myPosts.concat(shuffleArray(otherPosts));
             }
             postsToLoad = allPosts.slice(postCountInView, postCountInView + 10);
             postCountInView += postsToLoad.length;
@@ -820,16 +872,17 @@
         }
     }
 
-    function addPostsToView(posts, reset = false) {
+    async function addPostsToView(posts, reset = false) {
         var container = document.getElementById("posts-container");
         if (reset) {
             container.innerHTML = "";
         }
-        posts.forEach(async function (post) {
-            var postHtml = await createPostHtml(post);
-            // Append the postHtml to container
-            container.innerHTML += postHtml;
-        });
+        // Build each post's HTML in array order, then append once. The previous async
+        // forEach appended posts in whatever order their like/comment-count requests
+        // happened to resolve, which shuffled the feed (so a freshly shared post that was
+        // placed at the front could end up anywhere).
+        var htmlParts = await Promise.all(posts.map(createPostHtml));
+        container.innerHTML += htmlParts.join("");
     }
 
     function getRandomImagePaths() {
@@ -949,11 +1002,14 @@
     }
 
     async function setBirthdays() {
+        // Only today's birthdays are shown, capped at 5, so the sidebar stays short and the
+        // feed can keep a fixed height with just the posts scrolling.
         var todayBirthdaysUsers = await makeAjaxRequest("/api/User/GetUsersWithTodayBirthday?userId=" + currentUserId, "GET");
         var containerToday = document.getElementById("today-birthdays");
         containerToday.style.marginBottom = "25px";
         if (todayBirthdaysUsers != null && todayBirthdaysUsers.length > 0) {
-            for (var i = 0; i < todayBirthdaysUsers.length; i++) {
+            var maxToShow = Math.min(5, todayBirthdaysUsers.length);
+            for (var i = 0; i < maxToShow; i++) {
                 var user = todayBirthdaysUsers[i];
                 var html = createBirthdayHtml(user, "Today");
                 containerToday.innerHTML += html;
@@ -961,35 +1017,6 @@
         }
         else {
             containerToday.innerHTML = "Today, there are no birthdays among the users.";
-        }
-
-        var recentBirthdaysUsers = await makeAjaxRequest("/api/User/GetUsersWithRecentBirthday?userId=" + currentUserId, "GET");
-        var containerRecent = document.getElementById("recent-birthdays");
-        containerRecent.style.marginBottom = "25px";
-        if (recentBirthdaysUsers != null && recentBirthdaysUsers.length > 0) {
-
-            for (var i = 0; i < recentBirthdaysUsers.length; i++) {
-                var user = recentBirthdaysUsers[i];
-                var html = createBirthdayHtml(user, user.birthday);
-                containerRecent.innerHTML += html;
-            }
-        }
-        else {
-            containerRecent.innerHTML = "Recently, there haven't been any birthdays among the users."
-        }
-
-        var comingBirthdaysUsers = await makeAjaxRequest("/api/User/GetUsersWithComingBirthday?userId=" + currentUserId, "GET");
-        var containerComing = document.getElementById("coming-birthdays");
-        containerComing.style.marginBottom = "25px";
-        if (comingBirthdaysUsers != null && comingBirthdaysUsers.length > 0) {
-            for (var i = 0; i < comingBirthdaysUsers.length; i++) {
-                var user = comingBirthdaysUsers[i];
-                var html = createBirthdayHtml(user, user.birthday);
-                containerComing.innerHTML += html;
-            }
-        }
-        else {
-            containerComing.innerHTML = "There are no upcoming birthdays among the users.";
         }
     }
 
@@ -1033,12 +1060,39 @@
     setBirthdays();
     loadPosts();
 
+    // Pin the feed row to fill the space between its top (just under the fixed navbar) and the
+    // bottom of the viewport. Measuring the row's offset keeps this exact regardless of the
+    // navbar's height. With the row height fixed, the side widgets stay put and only the posts
+    // column scrolls — so no empty space is left beside the posts. Only runs on wide screens;
+    // below 992px the columns stack and the page scrolls normally.
+    function sizeFeed() {
+        var row = document.getElementById("feed-row");
+        if (!row || window.innerWidth < 992) {
+            if (row) {
+                row.style.removeProperty("--feed-height");
+            }
+            return;
+        }
+        var top = row.getBoundingClientRect().top;
+        var available = window.innerHeight - top - 10; // small bottom gap
+        row.style.setProperty("--feed-height", available + "px");
+    }
+
+    sizeFeed();
+    window.addEventListener("resize", sizeFeed);
+
     // Auto-load more posts when the loader scrolls into view, so users never click "Load More".
+    // The root is the posts scroll container so the loader only counts as "visible" when the
+    // user has actually scrolled to the bottom of the posts (not while it's pinned off-screen).
     (function () {
         var loader = document.getElementById("loader");
+        var scrollRoot = document.getElementById("posts-scroll");
         if (!loader || !("IntersectionObserver" in window)) {
             return;
         }
+        // On wide screens the posts scroll inside #posts-scroll; on narrow screens the page
+        // scrolls, so fall back to the viewport (root: null) there.
+        var root = (scrollRoot && window.innerWidth >= 992) ? scrollRoot : null;
         new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 var visible = loader.offsetParent !== null;
@@ -1046,7 +1100,7 @@
                     loadPosts();
                 }
             });
-        }, { rootMargin: "200px" }).observe(loader);
+        }, { root: root, rootMargin: "200px" }).observe(loader);
     })();
 </script>
 

@@ -336,6 +336,11 @@
         public const string GetUnreadNotificationCount = "GetUnreadNotificationCount";
 
         /// <summary>
+        /// Represents the DeleteNotification API route.
+        /// </summary>
+        public const string DeleteNotification = "DeleteNotification";
+
+        /// <summary>
         /// Represents the DeleteProfile API route.
         /// </summary>
         public const string DeleteProfile = "DeleteProfile";
@@ -375,5 +380,11 @@
         /// This constant is used to identify the action of retrieving the last message in the chat.
         /// </summary>
         public const string GetLastMessage = "GetLastMessage";
+
+        /// <summary>
+        /// Represents the GetChatList API route, which returns each chat partner together
+        /// with their last message in a single response.
+        /// </summary>
+        public const string GetChatList = "GetChatList";
     }
 }

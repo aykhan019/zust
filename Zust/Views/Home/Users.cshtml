@@ -72,6 +72,39 @@
     .custom-spinner-color {
         color: var(--main-color);
     }
+
+    /* Reserve a fixed height for the stat numbers so swapping the loading spinner for the
+       actual count doesn't change the card height. */
+    .statistics li .item-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px;
+        min-height: 22px;
+    }
+
+    /* Keep long usernames/emails from overflowing the card horizontally. The avatar is a
+       fixed-width flex item, so the text column must be allowed to shrink (min-width: 0)
+       for the ellipsis to kick in relative to the space that's actually left. */
+    .single-friends-card .friends-content .friends-info {
+        min-width: 0;
+    }
+
+    .single-friends-card .friends-content .friends-info .text {
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .single-friends-card .friends-content .friends-info .text h3,
+    .single-friends-card .friends-content .friends-info .text h3 a,
+    .single-friends-card .friends-content .friends-info .text span {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 </style>
 
 
@@ -148,10 +181,22 @@
         document.querySelector(".load-more-posts-btn").style.display = "none";
     }
 
+    function showSearchLoading() {
+        // Replace the grid with a centered spinner immediately so a slow search never looks
+        // like a frozen page while the request is in flight.
+        container.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center w-100" style="padding: 40px 0;">
+                <div class="spinner-border custom-spinner-color" role="status">
+                    <span class="sr-only"></span>
+                </div>
+            </div>`;
+    }
+
     function searchUsers() {
-        hideLoadMore();
         var searchText = document.getElementById("searchText").value.trim();
         if (searchText == '') return;
+        hideLoadMore();
+        showSearchLoading();
         GetUsersByText(searchText);
     }
 
@@ -179,6 +224,7 @@
                 }
             },
             error: function (error) {
+                container.innerHTML = getNoResultHtml("Search Failed", "Something went wrong while searching. Please try again.");
                 showError(error);
             }
         });
@@ -343,6 +389,10 @@
             //console.log(newUsers);
             if (newUsers.length === 0) {
                 container.innerHTML = getNoResultHtml("No results found", "Sorry! We couldn't find any results.");
+                // Hide the Load More button and stop its spinner so no stray loading bar
+                // sits under the empty state (and the scroll auto-loader stops firing).
+                document.querySelector(".load-more-posts-btn").style.display = "none";
+                stopSpinner();
             }
             else {
                 //if (sentFriendRequests.length === 0) {

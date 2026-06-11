@@ -680,6 +680,54 @@
     <script src="~/assets/js/owl.carousel.min.js"></script>
     <script src="~/assets/js/wow.min.js"></script>
     <script src="~/assets/js/main.js"></script>
+
+    <!-- SignalR + shared connection, loaded on every page so real-time notification sounds and
+         badge updates work app-wide (not only on the few pages that wire SignalR themselves). -->
+    <script src="~/assets/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/assets/js/userHub.js"></script>
+    <script>
+        // Global real-time handlers, active on every page. Page-specific scripts still register
+        // their own handlers on the same shared `connection` for their DOM updates; here we only
+        // play the notification sound and keep the navbar badge counts live. playNotificationSound
+        // is throttled, so the paired events the server emits for one action never double-chime.
+        (function () {
+            if (typeof connection === "undefined" || !connection) {
+                return;
+            }
+
+            function bumpBadge(id, delta) {
+                var el = document.getElementById(id);
+                if (!el) {
+                    return;
+                }
+                var n = parseInt(el.innerHTML, 10);
+                el.innerHTML = (isNaN(n) ? 0 : n) + delta;
+            }
+
+            // New notification (comments, friend-request accept/decline, generic notifications).
+            connection.on("ReceiveNotification", function () {
+                playNotificationSound();
+                bumpBadge("numberOfNotifications", 1);
+            });
+
+            // Incoming friend request.
+            connection.on("ReceiveFriendRequest", function () {
+                playNotificationSound();
+                bumpBadge("numberOfFriendRequests", 1);
+            });
+
+            // Someone responded to a friend request you sent (no badge change here; the
+            // accompanying ReceiveNotification already covers the sound + notification badge).
+            connection.on("ReceiveFriendRequestResponse", function () {
+                playNotificationSound();
+            });
+
+            // Incoming chat message — softer single-note tone.
+            connection.on("ReceiveMessage", function () {
+                playNotificationSound("message");
+            });
+        })();
+    </script>
 </body>
 </html>
 

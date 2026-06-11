@@ -22,5 +22,13 @@ namespace Zust.DataAccess.Abstract
         /// </summary>
         /// <param name="count">Maximum number of random users to return.</param>
         Task<IEnumerable<User>> GetRandomUsersAsync(int count);
+
+        /// <summary>
+        /// Searches users by username, excluding the given user. The filter and ordering run at
+        /// the database (no full table load) and matching is case-insensitive.
+        /// </summary>
+        /// <param name="excludeUserId">The id of the user to exclude (typically the current user).</param>
+        /// <param name="text">The text to match within the username.</param>
+        Task<IEnumerable<User>> SearchUsersByNameAsync(string excludeUserId, string text);
     }
 }

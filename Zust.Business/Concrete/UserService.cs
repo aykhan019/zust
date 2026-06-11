@@ -103,6 +103,17 @@ namespace Zust.Business.Concrete
         }
 
         /// <summary>
+        /// Searches users by username (case-insensitive), excluding the specified user. Filtering
+        /// runs at the database so the whole users table is never loaded into memory.
+        /// </summary>
+        /// <param name="userId">The ID of the user to be excluded from the result.</param>
+        /// <param name="text">The text to match within the username.</param>
+        public async Task<IEnumerable<User>> SearchUsersByNameAsync(string userId, string text)
+        {
+            return await _userDal.SearchUsersByNameAsync(userId, text);
+        }
+
+        /// <summary>
         /// Retrieves a single page of users excluding the specified user, paginated at the database.
         /// </summary>
         /// <param name="userId">The ID of the user to be excluded from the result.</param>

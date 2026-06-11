@@ -9,16 +9,38 @@
 }
 
 <style>
+    /* The chat column fills the viewport height below the top navbar (its exact height is
+       set from JS via --chat-available-height). Only the messages list scrolls; the
+       header, profile box and the input footer stay put so the page itself never scrolls. */
+    .all-messages-body {
+        width: 100%;
+        padding-top: 20px; /* a little breathing room below the navbar */
+        height: var(--chat-available-height, 100vh);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .messages-chat-container {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* let #messages shrink so it can scroll instead of growing the page */
+        overflow: hidden;
+    }
+
     #messages {
-        min-height: 550px !important;
-        max-height: 550px !important;
-        overflow-y: scroll;
+        flex: 1 1 auto;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto;
         padding: 10px;
     }
 
-    .all-messages-body {
-        width: 600px;
-        padding-top: 0px;
+    /* Keep the input + Send button pinned at the bottom of the chat column. */
+    .messages-chat-container .chat-list-footer {
+        flex: 0 0 auto;
+        padding-top: 10px;
     }
 
     @@media only screen and (max-width: 800px) {
@@ -147,6 +169,25 @@
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+
+    // Size the chat column to exactly fill the space between its top (just under the navbar)
+    // and the bottom of the viewport. Measuring the element's offset keeps this correct
+    // regardless of the navbar's height, and re-running on resize keeps it responsive.
+    // With the column height pinned, only #messages scrolls and the input footer stays
+    // anchored at the bottom of the page.
+    function sizeChatArea() {
+        var body = document.querySelector(".all-messages-body");
+        if (!body) {
+            return;
+        }
+        var top = body.getBoundingClientRect().top;
+        var available = window.innerHeight - top;
+        body.style.setProperty("--chat-available-height", available + "px");
+        scrollToBottom();
+    }
+
+    sizeChatArea();
+    window.addEventListener("resize", sizeChatArea);
 
     scrollToBottom();
 

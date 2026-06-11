@@ -69,9 +69,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* Fill the available width (capped by the card's max-width) from the first paint,
-           instead of shrinking to the header + spinner while requests load. */
+        /* Fill the full content area (not capped at 850px) so the white card spans the whole
+           width, and fillToViewportHeight() stretches it to the bottom of the viewport — the
+           card stays full width + height even when there are no requests. */
         width: 100%;
+        max-width: none;
     }
 </style>
 
@@ -218,6 +220,7 @@
         requestsBody.innerHTML = html + requestsBody.innerHTML;
     });
 
+    fillToViewportHeight(document.getElementById("container"), 30);
     startSpinner();
     showReceivedFriendRequests();
 </script>

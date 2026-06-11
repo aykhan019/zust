@@ -26,102 +26,332 @@
 
 <style>
     #post-area {
-        width: 35%;
+        width: 100%;
+        max-width: 680px;
+        margin: 0 auto;
         align-self: center;
-    }
-
-    @@media only screen and (max-width: 1000px) {
-        #post-area {
-            width: 100%;
-        }
+        background-color: #fff;
+        border-radius: 14px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
     }
 
     ul {
         list-style: none;
     }
 
-    .number {
-        margin-left: 4px;
-    }
-
-    .icon {
-        margin-right: 5px;
-    }
-
-    .form-group,
-    .post-footer {
+    /* Header */
+    .pd-header {
         display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef1f6;
     }
 
-    #like-button {
-        cursor: pointer !important;
+    .pd-header .pd-avatar {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e2e6ea;
+    }
+
+    .pd-header .pd-name {
+        font-weight: 700;
+        font-size: 16px;
+        color: #1c2b41;
+        line-height: 1.2;
+    }
+
+    .pd-header .pd-name a {
+        color: inherit;
+    }
+
+    .pd-header .pd-date {
+        font-size: 13px;
+        color: #8a94a6;
+    }
+
+    /* Body */
+    .pd-body {
+        padding: 18px 24px 4px;
+    }
+
+    .pd-desc {
+        font-size: 15px;
+        color: #2b3b53;
+        line-height: 1.6;
+        margin-bottom: 14px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .pd-media {
+        display: flex;
+        justify-content: center;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+        .pd-media img,
+        .pd-media video {
+            max-height: 600px;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            border-radius: 12px;
+        }
+
+    /* Action bar */
+    .pd-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        border-top: 1px solid #eef1f6;
+    }
+
+    .pd-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        color: #5b6678;
+        font-weight: 600;
+        font-size: 14px;
+        user-select: none;
+        transition: background-color .15s ease, color .15s ease;
+    }
+
+        .pd-action:hover {
+            background: #f3f6fb;
+            color: #1c2b41;
+        }
+
+        .pd-action i {
+            font-size: 18px;
+        }
+
+        .pd-action .number {
+            margin-left: 2px;
+        }
+
+    #like-button.liked,
+    #like-button.liked i {
+        color: var(--red-color);
+    }
+
+    /* Comments */
+    .pd-comments {
+        padding: 6px 24px 0;
+    }
+
+    .pd-comments-title {
+        font-weight: 700;
+        color: #1c2b41;
+        font-size: 15px;
+        margin: 8px 0 2px;
+    }
+
+    .pd-comment {
+        display: flex;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid #f1f4f9;
+    }
+
+        .pd-comment:last-child {
+            border-bottom: none;
+        }
+
+        .pd-comment .pd-c-avatar {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e6ea;
+        }
+
+        .pd-comment .pd-c-bubble {
+            background: #f3f6fb;
+            border-radius: 4px 14px 14px 14px;
+            padding: 10px 14px;
+            max-width: 100%;
+        }
+
+        .pd-comment .pd-c-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1c2b41;
+        }
+
+            .pd-comment .pd-c-name a {
+                color: inherit;
+            }
+
+        .pd-comment .pd-c-text {
+            margin: 2px 0 0;
+            font-size: 14px;
+            color: #41506a;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+    #showMore {
+        text-align: center;
+        margin: 10px 0 4px;
+    }
+
+        #showMore a {
+            color: var(--main-color);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+    /* Composer */
+    .pd-composer {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 16px 24px 22px;
+        border-top: 1px solid #eef1f6;
+        margin-top: 6px;
+    }
+
+        .pd-composer .pd-comp-avatar {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e6ea;
+        }
+
+        .pd-composer .pd-comp-wrap {
+            position: relative;
+            flex: 1;
+        }
+
+        .pd-composer textarea {
+            width: 100%;
+            min-height: 52px;
+            max-height: 160px;
+            resize: vertical;
+            border: 1px solid #dfe5ee;
+            border-radius: 14px;
+            padding: 14px 52px 14px 16px;
+            font-size: 14px;
+            color: #1c2b41;
+            background: #f8fafc;
+            outline: none;
+        }
+
+            .pd-composer textarea:focus {
+                border-color: var(--main-color);
+                background: #fff;
+            }
+
+        .pd-composer .pd-send {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--main-color);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+            .pd-composer .pd-send:hover {
+                filter: brightness(1.05);
+            }
+
+    @@media only screen and (max-width: 1000px) {
+        #post-area {
+            max-width: 100%;
+        }
     }
 </style>
 
-<div class="news-feed justify-content-between news-feed-post" id="post-area">
-    <div class="post-header d-flex align-items-center">
-        <div class="image">
-            <a href="/home/users?id=@Model.UserId"><img src="@Model.User.ImageUrl" style="max-height: 80px; max-width: 80px;" class="rounded-circle" alt="image"></a>
-        </div>
-        <div class="info ms-3" style="display: flex !important; flex-direction: column !important; justify-content: start !important;">
-            <span class="name"><a href="/home/users?id=@Model.UserId">@Model.User.UserName</a></span>
-            <span class="small-text"><a id="dateDiff">0</a></span>
+<div class="news-feed news-feed-post" id="post-area">
+    <div class="pd-header">
+        <a href="/home/users?id=@Model.UserId"><img class="pd-avatar" src="@Model.User.ImageUrl" alt="image"></a>
+        <div>
+            <div class="pd-name"><a href="/home/users?id=@Model.UserId">@Model.User.UserName</a></div>
+            <div class="pd-date" id="dateDiff">0</div>
         </div>
     </div>
 
-    <div class="post-body">
-        <p class="mt-3">@Model.Description</p>
-        <div class="post-image" style="display: flex; justify-content: center;">
-            @if (Model.IsVideo)
-            {
-                <video src="@Model.ContentUrl" controls style="max-height: 600px; max-width: 100%; width: auto; height: auto; align-self: center;"></video>
-            }
-            else
-            {
-                <img src="@Model.ContentUrl" alt="image" style="max-height: 600px;max-width: 100%; width: auto; height: auto; align-self: center;">
-            }
-        </div>
-        <ul class="post-meta-wrap d-flex justify-content-between align-items-center mt-4">
-            <li class="post-react">
-                <a id="like-button" onclick="likePost()">
-                    <i class="icon flaticon-like"></i>
-                    <span id="like-text"></span>
-                    <span class="number" id="like-count">0</span>
-                </a>
-            </li>
-            <li class="post-comment">
-                <a>
-                    <i class="icon flaticon-comment"></i>
-                    <span>Comment</span> 
-                    <span class="number" id="comment-count">0</span>
-                </a>
-            </li>
-            <li class="post-share">
-                <a><i class="icon flaticon-share"></i><span>Share</span> <span class="number"></span></a>
-            </li>
-        </ul>
+    <div class="pd-body">
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="pd-desc">@Model.Description</p>
+        }
+        @if (!string.IsNullOrEmpty(Model.ContentUrl))
+        {
+            <div class="pd-media">
+                @if (Model.IsVideo)
+                {
+                    <video src="@Model.ContentUrl" controls></video>
+                }
+                else
+                {
+                    <img src="@Model.ContentUrl" alt="image">
+                }
+            </div>
+        }
+    </div>
 
-        <hr />
+    <div class="pd-actions">
+        <a id="like-button" class="pd-action" onclick="likePost()">
+            <i class="flaticon-like"></i>
+            <span id="like-text"></span>
+            <span class="number" id="like-count">0</span>
+        </a>
+        <a class="pd-action">
+            <i class="flaticon-comment"></i>
+            <span>Comment</span>
+            <span class="number" id="comment-count">0</span>
+        </a>
+        <a class="pd-action">
+            <i class="flaticon-share"></i>
+            <span>Share</span>
+        </a>
+    </div>
+
+    <div class="pd-comments">
+        <div class="pd-comments-title">Comments</div>
 
         <div class="post-comment-list" id="comments">
         </div>
 
-        <div id="showMore" class="more-comments" style='text-align: center; margin-top: 5px; margin-bottom: 13px; cursor: pointer;'>
-            <a onClick='showComments()'>More Comments+</a>
+        <div id="showMore" class="more-comments">
+            <a onClick='showComments()'>More Comments +</a>
         </div>
-
-        <form class="post-footer" onsubmit="submitComment(event)">
-            <div class="footer-image">
-                <a href="/home/my-profile"><img src="@currentUser.ImageUrl" style="max-height: 80px; max-width: 80px;" class="rounded-circle" alt="image"></a>
-            </div>
-            <div class="form-group" style="width: 100%; position: relative; padding-left: 5px;">
-                <textarea id="commentText" name="message" class="form-control" placeholder="Write a comment..." style="padding-right: 40px; min-height: 60px; border-radius: 5px; color: black !important;"></textarea>
-                <label style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-                    <button type="submit" style="border:1px solid transparent;"><i class="ri-send-plane-line"></i></button>
-                </label>
-            </div>
-        </form>
     </div>
+
+    <form class="pd-composer" onsubmit="submitComment(event)">
+        <a href="/home/my-profile"><img class="pd-comp-avatar" src="@currentUser.ImageUrl" alt="image"></a>
+        <div class="pd-comp-wrap">
+            <textarea id="commentText" name="message" placeholder="Write a comment..."></textarea>
+            <button type="submit" class="pd-send" title="Send"><i class="ri-send-plane-line"></i></button>
+        </div>
+    </form>
 </div>
 
 <script src="~/assets/js/jquery.min.js"></script>
@@ -170,17 +400,13 @@
 
     function createCommentHtml(comment) {
         var content = `
-                             <div class="comment-list mt-3">
-                                    <div class="comment-image">
-                                        <a href="/home/users?id=${comment.user.id}"><img src="${comment.user.imageUrl}" class="rounded-circle" alt="image" style="min-heigth:60px !important;heigth:60px !important; max-height: 60px !important; max-width:60px !important; width:60px; min-width: 60px !important; background-color: gray;"></a>
-                                        <a href="/home/users?id=${comment.user.id}" style="padding-left: 10px;">${comment.user.userName}</a>
-                                    </div>
-                                    <div class="comment-info mt-3">
-                                        <p>${comment.text}</p>
-                                    </div>
-                                </div>
-
-                                <hr/>`;
+                <div class="pd-comment">
+                    <a href="/home/users?id=${comment.user.id}"><img class="pd-c-avatar" src="${comment.user.imageUrl}" alt="image"></a>
+                    <div class="pd-c-bubble">
+                        <div class="pd-c-name"><a href="/home/users?id=${comment.user.id}">${comment.user.userName}</a></div>
+                        <p class="pd-c-text">${comment.text}</p>
+                    </div>
+                </div>`;
 
         return content;
     }

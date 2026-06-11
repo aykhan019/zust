@@ -52,9 +52,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* Fill the available width (capped by the card's max-width) from the first paint,
-           instead of shrinking to the header while notifications load. */
+        /* Fill the full content area (not capped at 850px) so the white card spans the whole
+           width, and fillToViewportHeight() stretches it to the bottom of the viewport — the
+           card stays full width + height even when there are no notifications. */
         width: 100%;
+        max-width: none;
     }
 
     .isRead,
@@ -117,7 +119,7 @@
         var fromUserImage = fromUser.imageUrl || DEFAULT_AVATAR;
 
         var content = `
-                        <div class="item d-flex justify-content-between align-items-center">
+                        <div id="notification-${notification.id}" class="item d-flex justify-content-between align-items-center">
                             <div class="figure">
                                   <a href="/home/users?id=${notification.fromUserId}"><img src="${fromUserImage}" class="rounded-circle" style="height: 70px !important; width: 70px !important; object-fit:cover;" alt="image"></a>
                             </div>
@@ -128,7 +130,7 @@
                             </div>
                             <div class="icon">
                                     <div class='${notRead}'></div>
-                                    <a onClick=removeNotification()><i class="flaticon-x-mark"></i></a>
+                                    <a title="Delete notification" style="cursor: pointer;" onClick="removeNotification('${notification.id}')"><i class="flaticon-x-mark"></i></a>
                             </div>
                         </div>
                     `;
@@ -203,6 +205,35 @@
         }
     }
 
+    async function removeNotification(notificationId) {
+        try {
+            await makeAjaxRequest("/api/Notification/DeleteNotification?notificationId=" + notificationId, "POST");
+
+            var card = document.getElementById("notification-" + notificationId);
+            if (card) {
+                card.remove();
+            }
+
+            // Keep the in-view counter and cached list in sync so paging stays correct.
+            if (notificationCountInView > 0) {
+                notificationCountInView--;
+            }
+            if (allNotifications) {
+                allNotifications = allNotifications.filter(function (n) {
+                    return n == null || n.id !== notificationId;
+                });
+            }
+
+            // If everything is gone, show the empty state and hide Load More.
+            if (contaier.children.length === 0) {
+                contaier.innerHTML = getNoResultHtml("No Notifications", "You haven't received any notifications.");
+                document.getElementById("loadMore").style.display = 'none';
+            }
+        } catch (error) {
+            showError(error);
+        }
+    }
+
     connection.on("ReceiveNotification", async function (notification) {
         var notificationHtml = createNotificationHtml(notification);
         allContent = notificationHtml + allContent;
@@ -211,6 +242,7 @@
         setNotificationSeemed(notification).catch(function () { });
     });
 
+    fillToViewportHeight(document.getElementById("container"), 30);
     showNotifications();
 
     // Auto-load older notifications as the "Load More" button scrolls into view.

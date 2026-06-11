@@ -56,6 +56,39 @@
         color: var(--main-color);
     }
 
+    /* Reserve a fixed height for the stat numbers so swapping the loading spinner for the
+       actual count doesn't change the card height. */
+    .statistics li .item-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px;
+        min-height: 22px;
+    }
+
+    /* Keep long usernames/emails from overflowing the card horizontally. The avatar is a
+       fixed-width flex item, so the text column must be allowed to shrink (min-width: 0)
+       for the ellipsis to kick in relative to the space that's actually left. */
+    .single-friends-card .friends-content .friends-info {
+        min-width: 0;
+    }
+
+    .single-friends-card .friends-content .friends-info .text {
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .single-friends-card .friends-content .friends-info .text h3,
+    .single-friends-card .friends-content .friends-info .text h3 a,
+    .single-friends-card .friends-content .friends-info .text span {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .tab-content {
         display: flex;
         flex-direction: column;
@@ -145,20 +178,25 @@
         var container = document.getElementById("followings-container");
         var followings = await makeAjaxRequest(`/api/User/GetFollowingsInRange?startIndex=${followingCountInView}&takeCount=${takeUserCount}`, "GET");
         if (followings === null || followings.length === 0) {
-            container.innerHTML = getNoResultHtml("No Users Followed", "You're not following anyone yet. Start following users to see them here.")
-        }
-        else {
-            for (var i = 0; i < followings.length; i++) {
-                var following = followings[i];
-                var id = following.id;
-                var postLikesCountId = id + "-post-likes-count-p1";
-                var followingsCountId = id + "-following-count-p1";
-                var followersCountId = id + "-followers-count-p1";
-                var html = createFollowingHtml(following, postLikesCountId, followingsCountId, followersCountId);
-                container.innerHTML += html;
+            // Only show the empty state if nothing has been loaded yet; otherwise we've simply
+            // reached the end. Either way, hide the Load More button so the scroll auto-loader
+            // stops firing (which was leaving a stray loading bar under the empty state).
+            if (followingCountInView === 0) {
+                container.innerHTML = getNoResultHtml("No Users Followed", "You're not following anyone yet. Start following users to see them here.")
             }
-            followingCountInView += followings.length;
+            document.getElementById("loadMoreFollowings").style.display = "none";
+            return;
         }
+        for (var i = 0; i < followings.length; i++) {
+            var following = followings[i];
+            var id = following.id;
+            var postLikesCountId = id + "-post-likes-count-p1";
+            var followingsCountId = id + "-following-count-p1";
+            var followersCountId = id + "-followers-count-p1";
+            var html = createFollowingHtml(following, postLikesCountId, followingsCountId, followersCountId);
+            container.innerHTML += html;
+        }
+        followingCountInView += followings.length;
         await setSocialDataFollowing(followings);
 
         stopSpinner("loadMoreFollowings");
@@ -169,20 +207,25 @@
         var container = document.getElementById("followers-container");
         var followers = await makeAjaxRequest(`/api/User/GetFollowersInRange?startIndex=${followerCountInView}&takeCount=${takeUserCount}`, "GET");
         if (followers === null || followers.length === 0) {
-            container.innerHTML = getNoResultHtml("No Followers Yet", "You have no followers yet. Connect with others to start gaining followers.")
-        }
-        else {
-            for (var i = 0; i < followers.length; i++) {
-                var follower = followers[i];
-                var id = follower.id;
-                var postLikesCountId = id + "-post-likes-count-p2";
-                var followingsCountId = id + "-following-count-p2";
-                var followersCountId = id + "-followers-count-p2";
-                var html = createFollowerHtml(follower, postLikesCountId, followingsCountId, followersCountId);
-                container.innerHTML += html;
+            // Only show the empty state if nothing has been loaded yet; otherwise we've simply
+            // reached the end. Either way, hide the Load More button so the scroll auto-loader
+            // stops firing (which was leaving a stray loading bar under the empty state).
+            if (followerCountInView === 0) {
+                container.innerHTML = getNoResultHtml("No Followers Yet", "You have no followers yet. Connect with others to start gaining followers.")
             }
-            followerCountInView += followers.length;
+            document.getElementById("loadMoreFollowers").style.display = "none";
+            return;
         }
+        for (var i = 0; i < followers.length; i++) {
+            var follower = followers[i];
+            var id = follower.id;
+            var postLikesCountId = id + "-post-likes-count-p2";
+            var followingsCountId = id + "-following-count-p2";
+            var followersCountId = id + "-followers-count-p2";
+            var html = createFollowerHtml(follower, postLikesCountId, followingsCountId, followersCountId);
+            container.innerHTML += html;
+        }
+        followerCountInView += followers.length;
         await setSocialDataFollower(followers);
 
         stopSpinner("loadMoreFollowers");

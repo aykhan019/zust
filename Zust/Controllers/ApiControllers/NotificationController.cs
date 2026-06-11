@@ -107,6 +107,25 @@ namespace Zust.Web.Controllers.ApiControllers
         }
 
         /// <summary>
+        /// Deletes a single notification by its ID.
+        /// </summary>
+        /// <param name="notificationId">The ID of the notification to delete.</param>
+        [HttpPost(Routes.DeleteNotification)]
+        public async Task<ActionResult> DeleteNotification(string notificationId)
+        {
+            try
+            {
+                await _notificationService.DeleteNotificationAsync(notificationId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets the count of unread notifications for a user by their ID.
         /// </summary>
         /// <param name="userId">The ID of the user whose unread notification count to retrieve.</param>

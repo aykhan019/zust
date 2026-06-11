@@ -45,5 +45,12 @@ namespace Zust.Business.Abstract
         /// <param name="userId">The ID of the user whose notifications will be deleted.</param>
         /// <returns>Task representing the asynchronous operation.</returns>
         Task DeleteUserNotificationsAsync(string userId);
+
+        /// <summary>
+        /// Deletes a single notification asynchronously based on its ID.
+        /// </summary>
+        /// <param name="notificationId">The ID of the notification to delete.</param>
+        /// <returns>Task representing the asynchronous operation.</returns>
+        Task DeleteNotificationAsync(string notificationId);
     }
 }

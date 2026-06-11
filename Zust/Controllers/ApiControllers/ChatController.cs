@@ -189,6 +189,72 @@ namespace Zust.Web.Controllers.ApiControllers
         }
 
         /// <summary>
+        /// Gets the full chat list for a user: every chat partner together with the text of
+        /// the last message exchanged, in a single response. This lets the chats page render
+        /// all conversations at once instead of issuing one GetLastMessage request per chat
+        /// (which made the chats appear one by one).
+        /// </summary>
+        /// <param name="userId">The ID of the user whose chat list is requested.</param>
+        /// <returns>A list of chat list items, ordered by most recent message first.</returns>
+        [HttpGet(Routes.GetChatList)]
+        public async Task<ActionResult<IEnumerable<ChatListItemViewModel>>> GetChatList(string userId)
+        {
+            try
+            {
+                var chats = (await _chatService.GetAllUserChats(userId)).ToList();
+
+                var currentUser = await UserHelper.GetCurrentUserAsync(HttpContext);
+
+                // Build each entry sequentially: the scoped DbContext is shared and does not
+                // support concurrent operations.
+                var items = new List<ChatListItemViewModel>(chats.Count);
+                foreach (var chat in chats)
+                {
+                    var partnerId = chat.SenderUserId != currentUser.Id
+                        ? chat.SenderUserId
+                        : chat.ReceiverUserId;
+
+                    if (partnerId == currentUser.Id)
+                    {
+                        continue; // neither side matched another user
+                    }
+
+                    var partner = await _userService.GetUserByIdAsync(partnerId);
+
+                    if (partner == null)
+                    {
+                        continue; // chat partner no longer has an account
+                    }
+
+                    var lastMessage = await _messageService.GetLastMessageAsync(chat);
+
+                    if (lastMessage == null || string.IsNullOrEmpty(lastMessage.Text))
+                    {
+                        continue; // no conversation yet, mirror the previous client behaviour
+                    }
+
+                    items.Add(new ChatListItemViewModel
+                    {
+                        Id = partner.Id,
+                        UserName = partner.UserName,
+                        ImageUrl = partner.ImageUrl,
+                        LastMessage = lastMessage.Text,
+                        LastMessageDate = lastMessage.DateSent
+                    });
+                }
+
+                // Most recent conversation first, so the latest chat sits on top of the list.
+                var ordered = items.OrderByDescending(i => i.LastMessageDate);
+
+                return Ok(ordered);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Retrieves the last message between the current user and the specified user.
         /// </summary>
         /// <param name="userId">The ID of the user with whom to retrieve the last message.</param>

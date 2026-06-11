@@ -8,24 +8,49 @@
 }
 
 <style>
-    .item {
-        width: 600px; /* Increase the width to your desired value */
-        padding-bottom: 10px;
-        cursor: pointer;
-    }
-
-    @@media only screen and (max-width: 700px) {
-        .item {
-            width: 100%;
-        }
-    }
-
     #container {
         margin-top: 0px;
         margin-bottom: 0px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%; /* hold full width immediately, before any chats load */
+        /* Span the full content area (not capped at 850px) and, via fillToViewportHeight(),
+           stretch to the bottom of the viewport so the white card stays full width + height
+           even when there are no chats. */
+        max-width: none;
+    }
+
+    /* The list holder fills the container (capped for readability) and keeps its
+       width even while empty, so the layout doesn't shift once chats arrive. */
+    #my-chats {
+        width: 100%;
+        max-width: 600px;
+        min-height: 1px;
+    }
+
+    .item {
+        width: 100%;
+        padding-bottom: 10px;
+        cursor: pointer;
+    }
+
+    /* Reserve the avatar's space and show a neutral placeholder immediately, so rows
+       don't visibly pop in one by one as each remote image finishes downloading. */
+    .item .figure img {
+        height: 70px;
+        width: 70px;
+        object-fit: cover;
+        background-color: #e2e6ea;
+    }
+
+    .custom-spinner-color {
+        color: var(--main-color);
+    }
+
+    #spinner {
+        margin: auto;
+        margin-top: 10px;
     }
 </style>
 
@@ -37,6 +62,10 @@
     </div>
 
     <div id="my-chats">
+    </div>
+
+    <div id="spinner" class="spinner-border custom-spinner-color" role="status">
+        <span class="sr-only"></span>
     </div>
 </div>
 
@@ -50,17 +79,23 @@
 
     var currentUserId = '@user.Id.ToString()';
 
-    var createUserChatHtml = async function (user) {
-        var lastMessage = await makeAjaxRequest(`/api/Chat/GetLastMessage?userId=${user.id}`);
-        if (lastMessage === "") return "";
+    function startSpinner() {
+        $('#spinner').css("visibility", "visible");
+    }
+
+    function stopSpinner() {
+        $('#spinner').css("visibility", "hidden");
+    }
+
+    var createUserChatHtml = function (chat) {
         var content = `
-                <div class="item d-flex justify-content-between align-items-center" onclick=redirectToChat('${user.id}')>
+                <div class="item d-flex justify-content-between align-items-center" onclick=redirectToChat('${chat.id}')>
                     <div class="figure">
-                        <a href="/home/chats?userId=${user.id}"><img src="${user.imageUrl}" class="rounded-circle" style="height: 70px !important; width: 70px !important; object-fit:cover;" alt="image"></a>
+                        <a href="/home/chats?userId=${chat.id}"><img src="${chat.imageUrl}" class="rounded-circle" alt="image"></a>
                     </div>
                     <div class="text">
-                        <h4><a href="/home/chats?userId=${user.id}">${user.userName}</a></h4>
-                        <span>${lastMessage}</span>
+                        <h4><a href="/home/chats?userId=${chat.id}">${chat.userName}</a></h4>
+                        <span>${chat.lastMessage}</span>
                     </div>
                 </div>
                     <hr \>
@@ -74,26 +109,32 @@
 
     async function getUserChats() {
         try {
-            // Fetch user chats using AJAX request
-            var users = await makeAjaxRequest(`/api/Chat/GetChats?userId=${currentUserId}`, "GET");
-
+            // Fetch the whole chat list (each partner plus their last message) in a single
+            // request, then render it all at once. Previously the page fetched the chat list
+            // and then issued a separate GetLastMessage request per chat, so the browser's
+            // per-host connection limit made the chats trickle in one by one.
+            var chatList = await makeAjaxRequest(`/api/Chat/GetChatList?userId=${currentUserId}`, "GET");
 
             var chats = document.getElementById("my-chats");
 
-            // Clear the existing content before adding new chat items
-            chats.innerHTML = '';
-
-            // Iterate through users and add chat items to the DOM
-            for (var i = 0; i < users.length; i++) {
-                var user = users[i];
-                var html = await createUserChatHtml(user);
-                chats.innerHTML += html;
+            if (!chatList || chatList.length === 0) {
+                chats.innerHTML = getNoResultHtml("No Chats", "You have no conversations yet.");
+                return;
             }
+
+            chats.innerHTML = chatList.map(createUserChatHtml).join('');
         } catch (error) {
             console.error("Error fetching user chats:", error);
+        } finally {
+            // Hide the spinner once the whole list is rendered, so chats appear all at
+            // once (like the Friend Requests page) rather than the page sitting on an
+            // empty box while loading.
+            stopSpinner();
         }
     }
 
+    fillToViewportHeight(document.getElementById("container"), 30);
+    startSpinner();
     getUserChats();
 
 </script>

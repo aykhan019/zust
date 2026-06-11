@@ -52,6 +52,21 @@ namespace Zust.Business.Concrete
         }
 
         /// <summary>
+        /// Deletes a single notification asynchronously based on its ID.
+        /// </summary>
+        /// <param name="notificationId">The ID of the notification to delete.</param>
+        /// <returns>Task representing the asynchronous operation.</returns>
+        public async Task DeleteNotificationAsync(string notificationId)
+        {
+            var notification = await _notificationDal.GetAsync(n => n.Id == notificationId);
+
+            if (notification != null)
+            {
+                await _notificationDal.DeleteAsync(notification);
+            }
+        }
+
+        /// <summary>
         /// Retrieves all notifications sent to a specific user asynchronously.
         /// </summary>
         /// <param name="userId">The ID of the user to retrieve notifications for.</param>

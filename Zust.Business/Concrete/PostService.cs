@@ -160,7 +160,11 @@ namespace Zust.Business.Concrete
         /// <returns>The total count of likes for all posts of the user.</returns>
         public async Task<int> GetAllPostsLikeCountAsync(string userId)
         {
-            var postIds = (await GetAllPostsOfUserAsync(userId)).Select(p => p.Id).ToList();
+            var postIds = (await GetAllPostsOfUserAsync(userId))
+                              .Select(p => p.Id)
+                              .Where(id => id is not null)
+                              .Select(id => id!)
+                              .ToList();
 
             if (postIds.Count == 0)
             {

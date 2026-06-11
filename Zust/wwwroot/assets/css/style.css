@@ -4123,6 +4123,15 @@ My Profile Area CSS
                     font-size: var(--font-size);
                     color: var(--black-color);
                     font-weight: 600;
+                    /* Center the value (or its loading spinner) in a fixed-height box. The
+                       spinner is a block-level div; without this it breaks the inline row and
+                       overflows the statistics container. */
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 28px;
+                    min-height: 28px;
+                    line-height: 1;
                 }
 
                 .my-profile-inner-box .profile-info-box .inner-info-box .statistics li .item-text {

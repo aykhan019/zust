@@ -17,7 +17,9 @@
     overflow: hidden;
 }
 
-.bounce {
+/* Renamed from ".bounce" to avoid colliding with animate.min.css's generic ".bounce"
+   animation class, which was overriding this empty-state ball's animation. */
+.empty-bounce {
     display: inline-block;
     position: absolute;
     bottom: 0;

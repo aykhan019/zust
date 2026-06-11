@@ -63,6 +63,14 @@ namespace Zust.Business.Abstract
         Task<IEnumerable<User>> GetUsersOtherThanAsync(string userId, int skip, int take);
 
         /// <summary>
+        /// Searches users by username (case-insensitive), excluding the specified user. Filtering
+        /// runs at the database so the whole users table is never loaded into memory.
+        /// </summary>
+        /// <param name="userId">The ID of the user to be excluded from the result.</param>
+        /// <param name="text">The text to match within the username.</param>
+        Task<IEnumerable<User>> SearchUsersByNameAsync(string userId, string text);
+
+        /// <summary>
         /// Retrieves a set of random users, selected at the database.
         /// </summary>
         /// <param name="count">Maximum number of random users to return.</param>

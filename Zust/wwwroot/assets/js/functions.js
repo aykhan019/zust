@@ -92,7 +92,7 @@ function getNoResultHtml(title, message) {
     let content = `
     <div class="empty-icon-container">
       <div class="animation-container">
-        <div class="bounce"></div>
+        <div class="empty-bounce"></div>
         <div class="pebble1"></div>
         <div class="pebble2"></div>
         <div class="pebble3"></div>
@@ -439,17 +439,141 @@ function enableAutoLoad(buttonId) {
         return;
     }
 
+    var isIntersecting = false;
+
+    function tryLoad() {
+        var visible = button.offsetParent !== null && getComputedStyle(button).visibility !== "hidden";
+        if (isIntersecting && visible && !button.disabled) {
+            button.click();
+        }
+    }
+
     var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-            if (!entry.isIntersecting) {
-                return;
-            }
-            var visible = button.offsetParent !== null && getComputedStyle(button).visibility !== "hidden";
-            if (visible && !button.disabled) {
-                button.click();
-            }
+            isIntersecting = entry.isIntersecting;
         });
+        tryLoad();
     }, { rootMargin: "200px" });
 
     observer.observe(button);
+
+    // IntersectionObserver only fires when the intersection state *changes*. If the first
+    // page of results isn't tall enough to push the button back out of view, it stays
+    // continuously intersecting and would never auto-load again. The load handlers disable
+    // the button (spinner) while loading and re-enable it when done, so watch the `disabled`
+    // attribute and retry as soon as the button is enabled again while still in view.
+    var enabledObserver = new MutationObserver(function () {
+        tryLoad();
+    });
+    enabledObserver.observe(button, { attributes: true, attributeFilter: ["disabled"] });
+}
+
+// Stretches an element so its bottom reaches the bottom of the viewport, by setting a
+// min-height equal to the space between the element's top and the viewport bottom. Used to make
+// the white card on the notifications / friend-requests / chats pages fill the full available
+// height even when it's empty, instead of shrinking to a small box. Re-applies on resize.
+function fillToViewportHeight(el, bottomGap) {
+    if (!el) {
+        return;
+    }
+    var gap = bottomGap || 0;
+    function apply() {
+        var top = el.getBoundingClientRect().top;
+        el.style.minHeight = (window.innerHeight - top - gap) + "px";
+    }
+    apply();
+    window.addEventListener("resize", apply);
+}
+
+// Plays a short, pleasant chime for real-time events (new notification, friend request,
+// incoming message). The tone is synthesized with the Web Audio API so there is no audio
+// asset to ship and nothing can 404. Kept intentionally soft and brief so it's a gentle
+// cue rather than an interruption.
+//
+// `type` tweaks the timbre:
+//   "message" -> a single soft note (incoming chat message)
+//   default   -> a two-note rising chime (notification / friend request)
+var _zustAudioCtx = null;
+var _zustLastSoundAt = 0;
+
+// Lazily create (and return) the shared AudioContext.
+function _zustGetAudioCtx() {
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) {
+        return null; // Web Audio not supported
+    }
+    if (!_zustAudioCtx) {
+        _zustAudioCtx = new AudioCtx();
+    }
+    return _zustAudioCtx;
+}
+
+// Browsers start an AudioContext "suspended" until the page receives a user gesture. Resume it
+// on the first interaction so notification sounds are unlocked for the rest of the session,
+// no matter which page the user is on when an event later arrives.
+(function _zustUnlockAudioOnFirstGesture() {
+    if (typeof document === "undefined") {
+        return;
+    }
+    function unlock() {
+        var ctx = _zustGetAudioCtx();
+        if (ctx && ctx.state === "suspended" && ctx.resume) {
+            ctx.resume();
+        }
+    }
+    ["click", "keydown", "touchstart", "pointerdown"].forEach(function (evt) {
+        // `once` removes the listener automatically after it fires the first time.
+        document.addEventListener(evt, unlock, { once: true, passive: true });
+    });
+})();
+
+function playNotificationSound(type) {
+    try {
+        // Throttle: several SignalR events can fire for one logical action (e.g. a friend
+        // request sends ReceiveFriendRequest + ReceiveNotification). Collapse them into a
+        // single chime instead of stacking sounds.
+        var nowMs = Date.now();
+        if (nowMs - _zustLastSoundAt < 500) {
+            return;
+        }
+        _zustLastSoundAt = nowMs;
+
+        var ctx = _zustGetAudioCtx();
+        if (!ctx) {
+            return; // Web Audio not supported; silently skip
+        }
+
+        // A context can be left "suspended" until the user interacts with the page. By the
+        // time a real-time event arrives the user has usually interacted, so resuming here
+        // unlocks playback; if not, the resume simply no-ops and the sound is skipped.
+        if (ctx.state === "suspended" && ctx.resume) {
+            ctx.resume();
+        }
+
+        // Master gain shared by the notes, with a quick attack and a smooth exponential
+        // release so the chime never clicks or feels harsh.
+        var now = ctx.currentTime;
+        var master = ctx.createGain();
+        master.gain.setValueAtTime(0.0001, now);
+        master.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        master.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+        master.connect(ctx.destination);
+
+        // Frequencies (Hz). A soft single note for messages; a gentle rising two-note
+        // chime (A5 -> C#6) for notifications and friend requests.
+        var notes = type === "message" ? [660] : [880, 1108.73];
+
+        notes.forEach(function (freq, i) {
+            var start = now + i * 0.13;
+            var osc = ctx.createOscillator();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            osc.connect(master);
+            osc.start(start);
+            osc.stop(start + 0.5);
+        });
+    } catch (e) {
+        // Audio is a non-critical enhancement: never let it break the calling handler.
+        console.debug("playNotificationSound skipped:", e);
+    }
 }

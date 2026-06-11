@@ -209,9 +209,9 @@ namespace Zust.Web.Controllers.ApiControllers
                     return NotFound(Errors.UserNotFound);
                 }
 
-                var users = await _userService.GetAllUsersOtherThanAsync(currentUser.Id);
-
-                var filteredUsers = users.Where(u => u.UserName.ToLower().Contains(text.ToLower()));
+                // Filter at the database (case-insensitive LIKE) instead of loading every user
+                // into memory and filtering in C#.
+                var filteredUsers = await _userService.SearchUsersByNameAsync(currentUser.Id, text);
 
                 var userDTOs = _mapper.Map<List<UserDTO>>(filteredUsers);
 

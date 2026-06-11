@@ -150,7 +150,27 @@ namespace Zust.Web.Controllers.ApiControllers
                     await _notificationService.AddAsync(notification);
                 }
 
-                return Ok(post);
+                // Return the same clean, camelCase projection the feed uses (see GetAllPosts):
+                // the full Post/Identity-User entity is huge and leaks sensitive columns, and the
+                // client only needs these fields to render the new post at the top of the feed.
+                var created = new
+                {
+                    id = post.Id,
+                    description = post.Description,
+                    hasMediaContent = post.HasMediaContent,
+                    contentUrl = post.ContentUrl,
+                    isVideo = post.IsVideo,
+                    createdAt = post.CreatedAt,
+                    userId = post.UserId,
+                    user = post.User == null ? null : new
+                    {
+                        id = post.User.Id,
+                        userName = post.User.UserName,
+                        imageUrl = post.User.ImageUrl
+                    }
+                };
+
+                return Ok(created);
 
             }
             catch (Exception ex)
@@ -210,7 +230,20 @@ namespace Zust.Web.Controllers.ApiControllers
         {
             try
             {
-                var posts = await _postService.GetAllPostsOfUserAsync(userId);
+                var posts = (await _postService.GetAllPostsOfUserAsync(userId)).ToList();
+
+                // Populate the author on each post so the client can render the post header
+                // (avatar + name). All posts here belong to the same user, so a single lookup
+                // is enough. Without this, post.user is null on the client and the profile's
+                // "My Posts" list fails to render.
+                if (posts.Count > 0)
+                {
+                    var author = await _userService.GetUserByIdAsync(userId);
+                    foreach (var post in posts)
+                    {
+                        post.User = author;
+                    }
+                }
 
                 return Ok(posts);
             }
