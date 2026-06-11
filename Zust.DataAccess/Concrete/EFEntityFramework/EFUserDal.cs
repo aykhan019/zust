@@ -23,5 +23,19 @@ namespace Zust.DataAccess.Concrete.EFEntityFramework
                                  .Take(take)
                                  .ToListAsync();
         }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<User>> GetRandomUsersAsync(int count)
+        {
+            using var context = new ZustDbContext();
+
+            // Pick `count` random users at the database (ORDER BY RANDOM()) so the whole users
+            // table is never loaded into memory.
+            return await context.Set<User>()
+                                 .AsNoTracking()
+                                 .OrderBy(u => EF.Functions.Random())
+                                 .Take(count)
+                                 .ToListAsync();
+        }
     }
 }

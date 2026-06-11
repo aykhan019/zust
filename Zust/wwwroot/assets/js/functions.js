@@ -397,3 +397,59 @@ function makeAjaxRequest(url, type) {
         });
     });
 }
+
+// Neutral inline SVG avatar (gray silhouette). Used as a fallback when a profile photo is
+// missing/undefined or fails to load. Inline so it can never 404 itself.
+var DEFAULT_AVATAR =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e2e6ea'/%3E%3Ccircle cx='50' cy='38' r='19' fill='%23adb5bd'/%3E%3Cpath d='M16 88c0-19 16-30 34-30s34 11 34 30z' fill='%23adb5bd'/%3E%3C/svg%3E";
+
+// Swap any avatar image that fails to load (or has an undefined/empty src) for the default
+// avatar. We only touch avatar-style images so broken covers/post media aren't replaced by a
+// tiny silhouette. Capturing listener because `error` events don't bubble.
+(function () {
+    var AVATAR_CLASSES = ["rounded-circle", "user-image", "profile-image", "myimg"];
+
+    function isAvatar(img) {
+        for (var i = 0; i < AVATAR_CLASSES.length; i++) {
+            if (img.classList && img.classList.contains(AVATAR_CLASSES[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    document.addEventListener("error", function (e) {
+        var img = e.target;
+        if (!img || img.tagName !== "IMG" || img.dataset.fallbackApplied) {
+            return;
+        }
+        if (isAvatar(img)) {
+            img.dataset.fallbackApplied = "1";
+            img.src = DEFAULT_AVATAR;
+        }
+    }, true);
+})();
+
+// Auto-trigger a "Load More" button when it scrolls into view, so users never have to click it.
+// The button stays in the DOM (and keeps working if clicked); it's just fired automatically once
+// it becomes visible and is enabled. Re-arms itself after each load.
+function enableAutoLoad(buttonId) {
+    var button = document.getElementById(buttonId);
+    if (!button || !("IntersectionObserver" in window)) {
+        return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            var visible = button.offsetParent !== null && getComputedStyle(button).visibility !== "hidden";
+            if (visible && !button.disabled) {
+                button.click();
+            }
+        });
+    }, { rootMargin: "200px" });
+
+    observer.observe(button);
+}

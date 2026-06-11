@@ -788,7 +788,14 @@
 
     var likedPostsIds;
 
+    var isLoadingPosts = false;
+
     async function loadPosts() {
+        // Guard against re-entry (the initial call and the scroll auto-loader can overlap).
+        if (isLoadingPosts) {
+            return;
+        }
+        isLoadingPosts = true;
         likedPostsIds = await makeAjaxRequest("/api/Like/GetPostIdsLiked?userId=" + currentUserId, "GET");
         startLoaderSpinner();
         try {
@@ -800,9 +807,16 @@
             postCountInView += postsToLoad.length;
             addPostsToView(postsToLoad)
             stopLoaderSpinner();
+
+            // Hide the loader once every post has been shown, so auto-load stops.
+            if (postCountInView >= allPosts.length) {
+                document.getElementById("loader").style.display = "none";
+            }
         } catch (error) {
             showError(error);
             stopLoaderSpinner();
+        } finally {
+            isLoadingPosts = false;
         }
     }
 
@@ -1018,5 +1032,21 @@
     setStatuses();
     setBirthdays();
     loadPosts();
+
+    // Auto-load more posts when the loader scrolls into view, so users never click "Load More".
+    (function () {
+        var loader = document.getElementById("loader");
+        if (!loader || !("IntersectionObserver" in window)) {
+            return;
+        }
+        new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                var visible = loader.offsetParent !== null;
+                if (entry.isIntersecting && visible && !loader.disabled) {
+                    loadPosts();
+                }
+            });
+        }, { rootMargin: "200px" }).observe(loader);
+    })();
 </script>
 

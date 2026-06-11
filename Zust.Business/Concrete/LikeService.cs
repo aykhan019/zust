@@ -84,6 +84,24 @@ namespace Zust.Business.Concrete
         }
 
         /// <summary>
+        /// Retrieves the total like count across a set of posts in a single query.
+        /// </summary>
+        /// <param name="postIds">The IDs of the posts whose likes will be counted.</param>
+        /// <returns>The combined number of likes across all the specified posts.</returns>
+        public async Task<int> GetTotalLikeCountForPostsAsync(IEnumerable<string> postIds)
+        {
+            var ids = postIds as ICollection<string> ?? postIds.ToList();
+
+            if (ids.Count == 0)
+            {
+                return 0;
+            }
+
+            // Single WHERE PostId IN (...) query instead of one query per post.
+            return (await _likeDal.GetAllAsync(l => ids.Contains(l.PostId))).Count();
+        }
+
+        /// <summary>
         /// Retrieves all likes for a post asynchronously.
         /// </summary>
         /// <param name="postId">The ID of the post.</param>

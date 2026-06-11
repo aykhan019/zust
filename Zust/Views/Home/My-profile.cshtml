@@ -27,6 +27,24 @@
         object-fit: cover !important; /* Maintain aspect ratio and cover the container */
     }
 
+    /* The header row (image + name + Likes/Following/Followers) used a fixed-width name block
+       that overflowed and broke the stats out of the box on narrower viewports. Let the row
+       wrap and let the name column flex instead of forcing a fixed width. */
+    .my-profile-inner-box .profile-info-box .inner-info-box {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .info-text {
+        width: auto !important;
+        flex: 1 1 240px;
+        min-width: 0;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .statistics {
+        flex-shrink: 0;
+    }
+
     #posts {
         display: flex;
         flex-direction: column;

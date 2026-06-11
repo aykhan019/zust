@@ -99,6 +99,11 @@
         public const int AdvertisementCountInNewsFeed = 2;
 
         /// <summary>
+        /// Represents the number of random users featured in the "VIP Users" sidebar panel.
+        /// </summary>
+        public const int SpecialUserCount = 6;
+
+        /// <summary>
         /// Represents the range in days for checking birthdays.
         /// </summary>
         public const int BirthdayRange = 7;

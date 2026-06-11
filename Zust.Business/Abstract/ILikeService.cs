@@ -16,6 +16,13 @@ namespace Zust.Business.Abstract
         Task<int> GetPostLikeCountAsync(string postId);
 
         /// <summary>
+        /// Retrieves the total like count across a set of posts in a single query.
+        /// </summary>
+        /// <param name="postIds">The IDs of the posts whose likes will be counted.</param>
+        /// <returns>The combined number of likes across all the specified posts.</returns>
+        Task<int> GetTotalLikeCountForPostsAsync(IEnumerable<string> postIds);
+
+        /// <summary>
         /// Adds a new like to a post asynchronously.
         /// </summary>
         /// <param name="like">The like object to be added.</param>

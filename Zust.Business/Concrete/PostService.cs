@@ -138,9 +138,9 @@ namespace Zust.Business.Concrete
         /// <returns>A collection of Post objects representing all posts of the user.</returns>
         public async Task<IEnumerable<Post>> GetAllPostsOfUserAsync(string userId)
         {
-            var allPosts = (await GetAllPostsAsync()).Where(p => p.UserId == userId);
-
-            return allPosts;
+            // Filter at the database (WHERE UserId = userId) instead of loading every post and
+            // filtering in memory.
+            return await _postDal.GetAllAsync(p => p.UserId == userId);
         }
 
         /// <summary>
@@ -160,16 +160,16 @@ namespace Zust.Business.Concrete
         /// <returns>The total count of likes for all posts of the user.</returns>
         public async Task<int> GetAllPostsLikeCountAsync(string userId)
         {
-            var posts = await GetAllPostsOfUserAsync(userId);
+            var postIds = (await GetAllPostsOfUserAsync(userId)).Select(p => p.Id).ToList();
 
-            // Sequential: shared scoped DbContext does not allow concurrent operations.
-            int totalLikesCount = 0;
-            foreach (var p in posts)
+            if (postIds.Count == 0)
             {
-                totalLikesCount += await _likeService.GetPostLikeCountAsync(p.Id);
+                return 0;
             }
 
-            return totalLikesCount;
+            // Count all likes across the user's posts in a single query, instead of one
+            // count-query per post (an N+1 that opened a fresh DbContext for every post).
+            return await _likeService.GetTotalLikeCountForPostsAsync(postIds);
         }
 
         /// <summary>

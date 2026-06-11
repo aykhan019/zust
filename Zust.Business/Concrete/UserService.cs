@@ -114,6 +114,15 @@ namespace Zust.Business.Concrete
         }
 
         /// <summary>
+        /// Retrieves a set of random users, selected at the database.
+        /// </summary>
+        /// <param name="count">Maximum number of random users to return.</param>
+        public async Task<IEnumerable<User>> GetRandomUsersAsync(int count)
+        {
+            return await _userDal.GetRandomUsersAsync(count);
+        }
+
+        /// <summary>
         /// Deletes a user by their ID asynchronously.
         /// </summary>
         /// <param name="userId">The ID of the user to be deleted.</param>

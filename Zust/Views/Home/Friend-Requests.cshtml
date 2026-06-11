@@ -69,6 +69,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        /* Fill the available width (capped by the card's max-width) from the first paint,
+           instead of shrinking to the header + spinner while requests load. */
+        width: 100%;
     }
 </style>
 
@@ -123,15 +126,20 @@
 
     function getFriendRequestHtml(friendRequest) {
         var date = getDateTimeDifference(friendRequest.requestDate)
+        // The sender may be missing (e.g. a deleted account); fall back gracefully. A broken or
+        // undefined image is swapped for the default avatar by the handler in functions.js.
+        var sender = friendRequest.sender || {};
+        var senderName = sender.userName || "Unknown user";
+        var senderImage = sender.imageUrl || DEFAULT_AVATAR;
         var content = `
                            <div id=${friendRequest.id} class="item d-flex justify-content-between align-items-center">
                             <div class="figure">
                                 <a href="/home/users?id=${friendRequest.senderId}">
-                                   <img src="${friendRequest.sender.imageUrl}" class="rounded-circle" alt="image">
+                                   <img src="${senderImage}" class="rounded-circle" alt="image">
                                 </a>
                             </div>
                             <div class="text">
-                                <h4><a href="/home/users?id=${friendRequest.senderId}">${friendRequest.sender.userName}</a></h4>
+                                <h4><a href="/home/users?id=${friendRequest.senderId}">${senderName}</a></h4>
                                 <span>Sent you a friend request</span>
                                 <span class="main-color">${date}</span>
                             </div>

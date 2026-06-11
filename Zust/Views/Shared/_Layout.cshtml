@@ -50,6 +50,27 @@
         overflow-y: scroll;
     }
 
+    /* Keep each chat / VIP-user row on a single line and truncate long names with an
+       ellipsis instead of letting the text wrap and break the row layout. */
+    .right-sidebar-area .recent-chat-box .chat-body .chat-item,
+    .right-sidebar-area .recent-contact-box .contact-body .contact-item {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    .right-sidebar-area .recent-chat-box .chat-body .chat-item .name,
+    .right-sidebar-area .recent-contact-box .contact-body .contact-item .name,
+    .right-sidebar-area .recent-chat-box .chat-body .chat-item .name a,
+    .right-sidebar-area .recent-contact-box .contact-body .contact-item .name a {
+        display: inline-block;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
     .chat-body::-webkit-scrollbar {
         width: 8px; /* Width of the scrollbar */
     }
@@ -678,7 +699,7 @@
         var content = `
             <div class="chat-item">
                 <a href="/home/chats?userId=${user.id}"><img src="${user.imageUrl}" class="rounded-circle myimg" alt="image"></a>
-                <span class="name"><a href="/home/chats?userId=${user.id}">${user.userName}</a></span>
+                <span class="name"><a href="/home/chats?userId=${user.id}" title="${user.userName}">${user.userName}</a></span>
             </div>
         `;
         return content;
@@ -730,14 +751,12 @@
         }
 
         var content = `
-          <div class="contact-item" style="display; flex !important; flex-wrap: nowrap !important;">
+          <div class="contact-item">
             <a href="${redirectPage}">
-              <img src="${specialUser.imageUrl}" class="rounded-circle" alt="image" >
+              <img src="${specialUser.imageUrl}" class="rounded-circle" alt="image">
             </a>
             <span class="name">
-                  <a href="${redirectPage}" style="display: inline-block;; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: -15px; margin-top: 5px;">
-                ${specialUser.userName}
-              </a>
+              <a href="${redirectPage}" title="${specialUser.userName}">${specialUser.userName}</a>
             </span>
           </div>`;
         return content;

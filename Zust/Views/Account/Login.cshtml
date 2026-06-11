@@ -71,7 +71,7 @@
                     <div class="login-form">
                         <h2>Login</h2>
 
-                        <form asp-controller="authentication" asp-action="login" method="post" enctype="application/x-www-form-urlencoded">
+                        <form id="loginForm" asp-controller="authentication" asp-action="login" method="post" enctype="application/x-www-form-urlencoded">
                             <!-- Form fields -->
 
                             <div class="form-group">
@@ -118,6 +118,16 @@
     </div>
 
     <!-- End Preloader Area -->
+
+    <!-- Cold-start overlay: this app is hosted on a free tier that sleeps when idle, so the first
+         request after a while can take up to ~1 minute while the server wakes up. Shown on submit
+         so the user knows the wait is expected and the page hasn't frozen. -->
+    <div id="wakeOverlay" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(255,255,255,0.95); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+        <div class="spinner-border" role="status" style="color:var(--main-color); width:3rem; height:3rem;"></div>
+        <h3 style="margin-top:25px;">Waking up the server…</h3>
+        <p style="max-width:420px; color:#555;">This demo runs on free hosting that sleeps when idle, so the first sign-in can take up to a minute. Please hang tight — no need to refresh.</p>
+    </div>
+
     <!-- Links of JS files -->
     <script src="~/assets/js/jquery.min.js"></script>
     <script src="~/assets/js/functions.js"></script>
@@ -130,6 +140,13 @@
     <script src="~/assets/js/wow.min.js"></script>
     <script src="~/assets/js/main.js"></script>
     <script>
+        // Show the "waking up" overlay when the user submits, so a slow cold-start response
+        // doesn't look like a frozen page.
+        document.getElementById("loginForm").addEventListener("submit", function () {
+            var overlay = document.getElementById("wakeOverlay");
+            overlay.style.display = "flex";
+        });
+
         function togglePasswordVisibility(button) {
             var passwordInput = button.parentNode.previousElementSibling;
             if (passwordInput.type === 'password') {

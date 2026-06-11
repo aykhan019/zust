@@ -52,6 +52,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        /* Fill the available width (capped by the card's max-width) from the first paint,
+           instead of shrinking to the header while notifications load. */
+        width: 100%;
     }
 
     .isRead,
@@ -106,15 +109,20 @@
             notRead = 'notRead';
         }
 
-        //console.log("HERE");
+        // The sender may be missing (e.g. a deleted account); fall back gracefully so one bad
+        // entry can't break rendering. A broken/undefined image is swapped for the default
+        // avatar by the global handler in functions.js.
+        var fromUser = notification.fromUser || {};
+        var fromUserName = fromUser.userName || "Unknown user";
+        var fromUserImage = fromUser.imageUrl || DEFAULT_AVATAR;
 
         var content = `
                         <div class="item d-flex justify-content-between align-items-center">
                             <div class="figure">
-                                  <a href="/home/users?id=${notification.fromUserId}"><img src="${notification.fromUser.imageUrl}" class="rounded-circle" style="height: 70px !important; width: 70px !important; object-fit:cover;" alt="image"></a>
+                                  <a href="/home/users?id=${notification.fromUserId}"><img src="${fromUserImage}" class="rounded-circle" style="height: 70px !important; width: 70px !important; object-fit:cover;" alt="image"></a>
                             </div>
                             <div class="text">
-                                <h4><a href="/home/users?id=${notification.fromUserId}">${notification.fromUser.userName}</a></h4>
+                                <h4><a href="/home/users?id=${notification.fromUserId}">${fromUserName}</a></h4>
                                 <span>${notification.message}</span>
                                 <span class="main-color">${dateDiff}</span>
                             </div>
@@ -141,46 +149,70 @@
     var takeCount = 15;
 
     var allContent = '';
+    var isLoadingNotifications = false;
 
     async function showNotifications() {
-        if (allNotifications === null) {
-            await setAllNotifications();
+        // Guard against re-entry (auto-load can fire while a page is still loading).
+        if (isLoadingNotifications) {
+            return;
         }
+        isLoadingNotifications = true;
 
-        if (allNotifications.length === 0) {
-            var html = getNoResultHtml("No Notifications", "You haven't received any notifications.");
-            contaier.innerHTML = html;
-        }
-        else {
-            var items = allNotifications.slice();
-            var notifications = items.splice(notificationCountInView, takeCount);
+        try {
+            if (allNotifications === null) {
+                await setAllNotifications();
+            }
+
+            if (allNotifications.length === 0) {
+                contaier.innerHTML = getNoResultHtml("No Notifications", "You haven't received any notifications.");
+                document.getElementById("loadMore").style.display = 'none';
+                return;
+            }
+
+            // Take the next page and render it all at once (build the full HTML string, then a
+            // single DOM write) instead of appending each notification one-by-one.
+            var notifications = allNotifications.slice(notificationCountInView, notificationCountInView + takeCount);
+            var batchHtml = '';
             for (var i = 0; i < notifications.length; i++) {
-                try {
-                    var notification = notifications[i];
-                    if (notification != null) {
-                        await setNotificationSeemed(notification);
-                        var notificationHtml = createNotificationHtml(notification);
-                        contaier.innerHTML += notificationHtml;
-                        allContent += notificationHtml;
-                        notificationCountInView++;
-                    }
-                }
-                catch (error) {
-                    console.log("Error : ", error);
+                var notification = notifications[i];
+                if (notification != null) {
+                    batchHtml += createNotificationHtml(notification);
                 }
             }
+
+            contaier.insertAdjacentHTML("beforeend", batchHtml);
+            allContent += batchHtml;
+            notificationCountInView += notifications.length;
+
+            // Mark the just-shown notifications as read in the background — don't block rendering.
+            notifications.forEach(function (notification) {
+                if (notification != null && !notification.isRead) {
+                    setNotificationSeemed(notification).catch(function () { });
+                }
+            });
+
+            if (notificationCountInView >= allNotifications.length) {
+                document.getElementById("loadMore").style.display = 'none';
+            }
         }
-        if (allNotifications.length === notificationCountInView) {
-            document.getElementById("loadMore").style.display = 'none';
+        catch (error) {
+            console.log("Error : ", error);
+        }
+        finally {
+            isLoadingNotifications = false;
         }
     }
 
     connection.on("ReceiveNotification", async function (notification) {
-        await setNotificationSeemed(notification);
         var notificationHtml = createNotificationHtml(notification);
-        var newHtml = notificationHtml + allContent;
-        contaier.innerHTML = newHtml;
+        allContent = notificationHtml + allContent;
+        contaier.insertAdjacentHTML("afterbegin", notificationHtml);
+        notificationCountInView++;
+        setNotificationSeemed(notification).catch(function () { });
     });
 
     showNotifications();
+
+    // Auto-load older notifications as the "Load More" button scrolls into view.
+    enableAutoLoad("loadMore");
 </script>

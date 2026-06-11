@@ -79,7 +79,16 @@ namespace Zust.Web.Controllers.ApiControllers
             {
                 var specialUsers = await _staticService.GetSpecialUsersAsync();
 
-                return Ok(specialUsers);
+                // Project to only the fields the sidebar renders. Returning the full Identity User
+                // would leak sensitive columns (PasswordHash, SecurityStamp, ...).
+                var result = specialUsers.Select(u => new
+                {
+                    id = u.Id,
+                    userName = u.UserName,
+                    imageUrl = u.ImageUrl
+                });
+
+                return Ok(result);
             }
             catch (Exception ex)
             {

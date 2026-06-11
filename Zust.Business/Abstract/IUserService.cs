@@ -63,6 +63,12 @@ namespace Zust.Business.Abstract
         Task<IEnumerable<User>> GetUsersOtherThanAsync(string userId, int skip, int take);
 
         /// <summary>
+        /// Retrieves a set of random users, selected at the database.
+        /// </summary>
+        /// <param name="count">Maximum number of random users to return.</param>
+        Task<IEnumerable<User>> GetRandomUsersAsync(int count);
+
+        /// <summary>
         /// Deletes a user by their ID asynchronously.
         /// </summary>
         /// <param name="userId">The ID of the user to be deleted.</param>

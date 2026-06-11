@@ -93,20 +93,12 @@ namespace Zust.Web.Concrete
         /// <returns>A list of User objects representing special users.</returns>
         public async Task<List<User>> GetSpecialUsersAsync()
         {
-            string filepath = Path.Combine(FileConstants.FilesFolderPath, FileConstants.SpecialUsersFile);
+            // Pick a handful of random real users to feature as "VIP Users". (Previously this read
+            // a fixed list of ids from specialUsers.txt, but those ids never matched the seeded
+            // users, so the VIP Users panel always came up empty.)
+            var specialUsers = await _userService.GetRandomUsersAsync(Constants.SpecialUserCount);
 
-            var ids = FileHelper<string>.ReadTextFile(filepath);
-
-            var specialUsers = new List<User>();
-
-            foreach ( var id in ids)
-            {
-                var specialUser = await _userService.GetUserByIdAsync(id);
-
-                specialUsers.Add(specialUser);
-            }
-
-            return specialUsers;
+            return specialUsers.ToList();
         }
 
         /// <summary>

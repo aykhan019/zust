@@ -16,5 +16,11 @@ namespace Zust.DataAccess.Abstract
         /// <param name="skip">Number of users to skip.</param>
         /// <param name="take">Maximum number of users to return.</param>
         Task<IEnumerable<User>> GetUsersOtherThanAsync(string excludeUserId, int skip, int take);
+
+        /// <summary>
+        /// Retrieves a set of random users, selected at the database (ORDER BY RANDOM()).
+        /// </summary>
+        /// <param name="count">Maximum number of random users to return.</param>
+        Task<IEnumerable<User>> GetRandomUsersAsync(int count);
     }
 }
