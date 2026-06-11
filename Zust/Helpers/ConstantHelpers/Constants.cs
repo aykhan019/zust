@@ -49,6 +49,24 @@
         public const string DefaultProfileImagePath = "/assets/images/user/defaultUserImage.png";
 
         /// <summary>
+        /// Represents the avatar generator URL used for default user profile images.
+        /// </summary>
+        public const string DefaultProfileAvatarGeneratorUrl = "https://api.dicebear.com/9.x/avataaars/png?seed=";
+
+        /// <summary>
+        /// Represents the default file path for user cover images.
+        /// </summary>
+        public const string DefaultCoverImagePath = "/assets/images/user/defaultCoverImage.png";
+
+        /// <summary>
+        /// Builds a random generated avatar URL for a new user profile.
+        /// </summary>
+        public static string GetRandomProfileImagePath()
+        {
+            return $"{DefaultProfileAvatarGeneratorUrl}{Guid.NewGuid():N}";
+        }
+
+        /// <summary>
         /// Represents the "No Data" string.
         /// </summary>
         public const string NoData = "No Data";

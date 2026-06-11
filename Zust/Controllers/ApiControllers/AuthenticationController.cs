@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Zust.Business.Abstract;
 using Zust.Entities.Models;
-using Zust.Web.Abstract;
 using Zust.Web.Helpers.ConstantHelpers;
 using Zust.Web.Models;
 
@@ -26,11 +25,6 @@ namespace Zust.Web.Controllers.ApiControllers
         private readonly UserManager<User> _userManager;
 
         /// <summary>
-        /// The service responsible for handling static content and data.
-        /// </summary>
-        private readonly IStaticService _staticService;
-
-        /// <summary>
         /// The role manager component used for managing roles.
         /// </summary>
         private readonly RoleManager<Zust.Entities.Models.Role> _roleManager;
@@ -47,12 +41,10 @@ namespace Zust.Web.Controllers.ApiControllers
         /// <param name="userManager">The manager for handling user-related operations.</param>
         /// <param name="roleManager">The manager for handling role-related operations.</param>
         /// <param name="userService">The service for handling user-related operations.</param>
-        /// <param name="staticService">The service for handling static content and data.</param>
         public AuthenticationController(SignInManager<User> signInManager,
                                         UserManager<User> userManager,
                                         RoleManager<Zust.Entities.Models.Role> roleManager,
-                                        IUserService userService,
-                                        IStaticService staticService)
+                                        IUserService userService)
         {
             _signInManager = signInManager;
 
@@ -61,8 +53,6 @@ namespace Zust.Web.Controllers.ApiControllers
             _roleManager = roleManager; 
 
             _userService = userService;
-
-            _staticService = staticService;
         }
 
         /// <summary>
@@ -82,17 +72,15 @@ namespace Zust.Web.Controllers.ApiControllers
             }
 
             // Create a new User object and populate its properties
-            var filePath = Path.Combine(FileConstants.FilesFolderPath, FileConstants.CoversFile);
-
             var user = new User
             {
                 UserName = model.Username.Trim(),
 
                 Email = model.Email.Trim(),
 
-                CoverImage = _staticService.GetRandomCoverImage(filePath),
+                CoverImage = Constants.DefaultCoverImagePath,
 
-                ImageUrl = Constants.DefaultProfileImagePath
+                ImageUrl = Constants.GetRandomProfileImagePath()
             };
 
             // Register the user with the provided password

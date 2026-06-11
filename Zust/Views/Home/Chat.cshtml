@@ -1,6 +1,7 @@
 ﻿@model ChatViewModel;
 @{
     ViewData["Title"] = "Zust - Chat";
+    ViewData["HideFooter"] = true;
 
     // Group messages by date
     var messagesByDate = Model.Chat.Messages
@@ -9,16 +10,38 @@
 }
 
 <style>
+    html.chat-page-lock-scroll,
+    body.chat-page-lock-scroll {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .main-content-wrapper {
+        box-sizing: border-box;
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        padding-bottom: 0 !important;
+    }
+
     /* The chat column fills the viewport height below the top navbar (its exact height is
        set from JS via --chat-available-height). Only the messages list scrolls; the
        header, profile box and the input footer stay put so the page itself never scrolls. */
     .all-messages-body {
+        --chat-bottom-gap: 18px;
+        box-sizing: border-box;
         width: 100%;
-        padding-top: 20px; /* a little breathing room below the navbar */
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 18px 18px var(--chat-bottom-gap);
         height: var(--chat-available-height, 100vh);
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        background: linear-gradient(180deg, #fbfefd 0%, #ffffff 55%);
+        border: 1px solid rgba(25, 135, 84, .12);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(30, 55, 90, .08);
     }
 
     .messages-chat-container {
@@ -27,6 +50,9 @@
         flex-direction: column;
         min-height: 0; /* let #messages shrink so it can scroll instead of growing the page */
         overflow: hidden;
+        background-color: rgba(244, 247, 252, .56);
+        border: 1px solid #eef2f7;
+        border-radius: 8px;
     }
 
     #messages {
@@ -34,79 +60,252 @@
         min-height: 0 !important;
         max-height: none !important;
         overflow-y: auto;
-        padding: 10px;
+        padding: 18px;
     }
 
     /* Keep the input + Send button pinned at the bottom of the chat column. */
     .messages-chat-container .chat-list-footer {
         flex: 0 0 auto;
-        padding-top: 10px;
+        padding: 12px 12px 0;
+        margin-top: 0;
+        background-color: rgba(255, 255, 255, .92);
+        border-top: 1px solid #e7edf3;
     }
 
     @@media only screen and (max-width: 800px) {
         .all-messages-body {
             width: 100% !important;
+            --chat-bottom-gap: 14px;
+            padding: 12px;
+            padding-bottom: var(--chat-bottom-gap);
+            border-radius: 0;
+        }
+
+        .messages-profile-box {
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+
+        .messages-profile-box .chat-back-link {
+            display: none;
         }
     }
 
     .chat-content::-webkit-scrollbar {
-        width: 8px; /* Width of the scrollbar */
+        width: 8px;
     }
 
     .chat-content::-webkit-scrollbar-thumb {
-        background-color: #888; /* Color of the scrollbar thumb (the draggable part) */
+        background-color: rgba(25, 135, 84, .35);
         border-radius: 4px; /* Border radius of the scrollbar thumb */
     }
 
     .chat-content::-webkit-scrollbar-thumb:hover {
-            background-color: #555; /* Color of the scrollbar thumb when hovered */
-        }
+        background-color: rgba(25, 135, 84, .55);
+    }
 
     /* Hide scrollbar for Firefox */
     .chat-content {
         scrollbar-width: thin;
-        scrollbar-color: #888 #f5f5f5;
+        scrollbar-color: rgba(25, 135, 84, .45) #f5f5f5;
     }
 
     .chat-content::-webkit-scrollbar-track {
-            background: #f5f5f5; /* Color of the scrollbar track */
-        }
+        background: #f5f5f5;
+    }
+
+    .all-messages-header {
+        margin-bottom: 12px !important;
+    }
+
+    .all-messages-header h3 {
+        color: var(--main-color);
+        font-size: 20px !important;
+        font-weight: 700;
+    }
+
+    .messages-profile-box {
+        text-align: left !important;
+        margin-bottom: 14px !important;
+        padding: 12px;
+        background-color: #f7fbf9;
+        border: 1px solid rgba(25, 135, 84, .14);
+        border-radius: 8px;
+    }
+
+    .messages-profile-box h3 {
+        margin: 0 !important;
+        line-height: 1.2;
+    }
+
+    .messages-profile-box h3 a {
+        font-size: 17px !important;
+        font-weight: 700;
+        color: var(--black-color) !important;
+    }
+
+    .chat-profile-summary {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .chat-status-text {
+        display: block;
+        color: var(--paragraph-color);
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .chat-back-link {
+        color: var(--main-color);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .chat-back-link i {
+        position: relative;
+        top: 1px;
+        margin-right: 4px;
+    }
 
      #profile-image{
-        max-width: 120px !important;
-        max-height: 120px !important;
-        min-height: 120px !important;
-        min-width: 120px !important;
-        width: 120px !important;
-        height: 120px !important;
+        max-width: 58px !important;
+        max-height: 58px !important;
+        min-height: 58px !important;
+        min-width: 58px !important;
+        width: 58px !important;
+        height: 58px !important;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        box-shadow: 0 8px 18px rgba(25, 135, 84, .18);
     }
 
     .myimg{
-        width: 50px;
-        height: 50px;
-        min-height: 50px;
-        max-height: 50px;
-        max-width: 50px;
-        min-width: 50px;
+        width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        max-width: 38px !important;
+        min-width: 38px !important;
+        object-fit: cover;
+        border: 2px solid #ffffff;
+        box-shadow: 0 6px 16px rgba(30, 55, 90, .12);
+    }
+
+    .message-date-separator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 6px 0 18px;
+        color: var(--paragraph-color);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+    .message-date-separator::before,
+    .message-date-separator::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background-color: #e1e8ef;
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat .chat-avatar {
+        margin-top: 6px;
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat .chat-body .chat-message {
+        max-width: min(520px, 72%);
+        padding: 12px 15px;
+        margin: 0 0 24px 12px;
+        color: var(--black-color);
+        background-color: #ffffff;
+        border: 1px solid #e8eef4;
+        border-radius: 8px 8px 8px 2px;
+        box-shadow: 0 8px 24px rgba(30, 55, 90, .07);
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat .chat-body .chat-message p {
+        color: var(--black-color);
+        line-height: 1.55;
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat.chat-left .chat-body .chat-message {
+        margin: 0 12px 24px 0;
+        background-color: var(--main-color);
+        border-color: var(--main-color);
+        border-radius: 8px 8px 2px 8px;
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat.chat-left .chat-body .chat-message p,
+    .all-messages-body .messages-chat-container .chat-content .chat.chat-left .chat-body .chat-message .time {
+        color: var(--white-color);
+    }
+
+    .all-messages-body .messages-chat-container .chat-content .chat .chat-body .chat-message .time {
+        bottom: -20px;
+        color: #8a98a8;
+        font-size: 11px;
+    }
+
+    .all-messages-body .chat-list-footer form {
+        padding-right: 96px;
+    }
+
+    .all-messages-body .chat-list-footer form .form-control {
+        height: 46px;
+        background-color: #f7fafc;
+        border-color: #e5edf4;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .all-messages-body .chat-list-footer form .send-btn {
+        height: 46px;
+        border-radius: 8px;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(25, 135, 84, .22);
+    }
+
+    .chat-empty-state {
+        color: var(--paragraph-color);
+        font-size: 14px;
+        padding: 36px 16px;
+        text-align: center;
     }
 </style>
 
 <div class="all-messages-body">
     <div class="all-messages-header d-flex justify-content-between align-items-center">
-        <h3>Chat</h3>
+        <h3>Messages</h3>
     </div>
 
-    <div class="messages-profile-box">
-        <a href="/home/users?id=@Model.UserToChat.Id"><img src="@Model.UserToChat.ImageUrl" id="profile-image" class="rounded-circle" alt="image"></a>
-        <h3><a href="/home/users?id=@Model.UserToChat.Id">@Model.UserToChat.UserName</a></h3>
+    <div class="messages-profile-box d-flex justify-content-between align-items-center">
+        <div class="chat-profile-summary">
+            <a href="/home/users?id=@Model.UserToChat.Id"><img src="@Model.UserToChat.ImageUrl" id="profile-image" class="rounded-circle" alt="image"></a>
+            <div>
+                <h3><a href="/home/users?id=@Model.UserToChat.Id">@Model.UserToChat.UserName</a></h3>
+                <span class="chat-status-text">Private conversation</span>
+            </div>
+        </div>
+        <a href="/home/chats" class="chat-back-link"><i class="ri-arrow-left-line"></i>All chats</a>
     </div>
 
     <div class="messages-chat-container">
         <div class="chat-content" id="messages">
+            @if (!messagesByDate.Any())
+            {
+                <div class="chat-empty-state">No messages yet. Start the conversation below.</div>
+            }
+
             @foreach (var group in messagesByDate)
             {
-                <hr />
-                <h5>@group.Key.ToString("yyyy-MM-dd")</h5> <!-- Display the date -->
+                <div class="message-date-separator"><span>@group.Key.ToString("yyyy-MM-dd")</span></div>
                 @foreach (var message in group)
                 {
                     if (message.SenderUserId == Model.CurrentUser.Id)
@@ -164,6 +363,9 @@
 <script src="~/assets/js/userHub.js"></script>
 
 <script>
+    document.documentElement.classList.add("chat-page-lock-scroll");
+    document.body.classList.add("chat-page-lock-scroll");
+
     var messagesContainer = document.getElementById("messages");
 
     function scrollToBottom() {
@@ -181,7 +383,8 @@
             return;
         }
         var top = body.getBoundingClientRect().top;
-        var available = window.innerHeight - top;
+        var bottomGap = parseFloat(getComputedStyle(body).getPropertyValue("--chat-bottom-gap")) || 0;
+        var available = window.innerHeight - top - bottomGap;
         body.style.setProperty("--chat-available-height", available + "px");
         scrollToBottom();
     }

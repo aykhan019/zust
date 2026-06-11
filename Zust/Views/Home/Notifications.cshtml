@@ -8,85 +8,295 @@
 }
 
 <style>
-    .transparent-button {
-        background-color: transparent;
-        border: 1px solid transparent;
+    #container {
+        margin-top: 0;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
-    .item {
-        width: 600px; /* Increase the width to your desired value */
+    .notifications-shell {
+        width: 100%;
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fcfa 100%);
+        border: 1px solid rgba(25, 135, 84, .12);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(30, 55, 90, .08);
     }
 
-    @@media only screen and (max-width: 700px) {
-        .item {
-            width: 100%;
-            /*background-color: red;*/
-        }
-
-        #notificationsBody {
-            width: 100%;
-            /*background-color: green;*/
-            margin: 0px;
-        }
-
-        .all-notifications-body {
-            padding: 0px;
-            margin: 0px;
-            width: 100%;
-            /*background-color: yellow;*/
-        }
+    .notifications-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
     }
 
-    .custom-spinner-color {
+    .notifications-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .notifications-title-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(25, 135, 84, .1);
+        color: var(--main-color);
+        font-size: 26px;
+        flex: 0 0 auto;
+    }
+
+    .notifications-title {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .notifications-subtitle {
+        display: block;
+        margin-top: 4px;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
+
+    .notifications-count {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 8px 14px;
+        background-color: #eef9f2;
+        color: var(--main-color);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    #notificationsBody {
+        display: grid;
+        gap: 12px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .notification-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(30, 55, 90, .05);
+        transition: var(--transition);
+    }
+
+    .notification-card:hover {
+        border-color: rgba(25, 135, 84, .28);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(30, 55, 90, .09);
+    }
+
+    .notification-card.unread {
+        border-color: rgba(25, 135, 84, .24);
+        background-color: #fbfffd;
+    }
+
+    .notification-avatar-wrap {
+        width: 58px;
+        height: 58px;
+        flex: 0 0 auto;
+    }
+
+    .notification-avatar-wrap img {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        background-color: #e2e8f0;
+        box-shadow: 0 8px 20px rgba(30, 55, 90, .12);
+    }
+
+    .notification-card-main {
+        min-width: 0;
+    }
+
+    .notification-card-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 5px;
+    }
+
+    .notification-card-name {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 16px;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .notification-card-name:hover {
         color: var(--main-color);
     }
 
-    #spinner {
-        margin: auto;
-        margin-top: 10px;
+    .notification-card-time {
+        color: #91a0af;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
     }
 
-    #container {
-        margin-top: 0px;
-        margin-bottom: 0px;
+    .notification-card-message {
+        display: block;
+        color: var(--paragraph-color);
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .notification-actions {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        /* Fill the full content area (not capped at 850px) so the white card spans the whole
-           width, and fillToViewportHeight() stretches it to the bottom of the viewport — the
-           card stays full width + height even when there are no notifications. */
-        width: 100%;
-        max-width: none;
+        gap: 10px;
     }
 
-    .isRead,
-    .notRead {
-        height: 15px;
-        width: 15px;
+    .notification-unread-dot {
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background-color: var(--main-color);
-        margin-top: -2px;
+        box-shadow: 0 0 0 4px rgba(25, 135, 84, .1);
     }
 
-    .icon {
-        display: flex;
-        justify-content: space-between;
+    .notification-unread-dot.is-read {
+        visibility: hidden;
+    }
+
+    .notification-delete {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 50%;
+        display: inline-flex;
         align-items: center;
-        gap: 15px;
+        justify-content: center;
+        background-color: #fff1f0;
+        color: var(--red-color);
+        cursor: pointer;
+        font-size: 15px;
+        transition: var(--transition);
+    }
+
+    .notification-delete:hover {
+        color: var(--red-color);
+        box-shadow: 0 10px 22px rgba(244, 67, 54, .16);
+    }
+
+    .notifications-empty {
+        padding: 48px 18px;
+        border: 1px dashed #dce5ee;
+        border-radius: 8px;
+        background-color: #fbfdfc;
+        text-align: center;
+    }
+
+    .notifications-empty h4 {
+        margin-bottom: 8px;
+        color: var(--black-color);
+        font-size: 18px;
+    }
+
+    .notifications-empty p {
+        margin: 0;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
+
+    .notifications-load-more {
+        margin-top: 18px;
+        text-align: center;
+    }
+
+    .notifications-load-more .transparent-button {
+        min-width: 160px;
+        height: 44px;
+        border: 1px solid rgba(25, 135, 84, .18);
+        border-radius: 999px;
+        background-color: #f1f8f4;
+        color: var(--main-color);
+        font-size: 14px;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+
+    .notifications-load-more .transparent-button:hover {
+        background-color: var(--main-color);
+        color: #ffffff;
+        box-shadow: 0 12px 26px rgba(25, 135, 84, .18);
+    }
+
+    @@media only screen and (max-width: 767px) {
+        .notifications-shell {
+            padding: 16px;
+        }
+
+        .notifications-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .notification-card {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .notification-actions {
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+        }
     }
 </style>
 
 <div class="all-notifications-body" id="container">
+    <div class="notifications-shell">
+        <div class="notifications-hero">
+            <div class="notifications-title-wrap">
+                <span class="notifications-title-icon"><i class="ri-notification-3-line"></i></span>
+                <div>
+                    <h3 class="notifications-title">Notifications</h3>
+                    <span class="notifications-subtitle">Stay caught up on likes, comments, requests, and profile activity.</span>
+                </div>
+            </div>
+            <span class="notifications-count" id="notifications-count">0 notifications</span>
+        </div>
 
-    <div class="all-notifications-header d-flex justify-content-between align-items-center">
-        <h3 class="text-center w-100">Notifications</h3>
-    </div>
+        <div id="notificationsBody">
+        </div>
 
-    <div id="notificationsBody">
-    </div>
-
-    <div class="load-more-posts-btn">
-        <button id="loadMore" class="transparent-button" onclick="showNotifications()"><i class="flaticon-loading"></i> Load More</button>
+        <div class="notifications-load-more">
+            <button id="loadMore" class="transparent-button" onclick="showNotifications()"><i class="flaticon-loading"></i> Load More</button>
+        </div>
     </div>
 </div>
 
@@ -104,33 +314,61 @@
 
     localStorage.setItem('activeMenuItem', '#4');
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function updateNotificationCount(count) {
+        var label = count === 1 ? 'notification' : 'notifications';
+        document.getElementById('notifications-count').innerHTML = count + ' ' + label;
+    }
+
+    function renderEmptyNotifications() {
+        contaier.innerHTML = `
+            <div class="notifications-empty">
+                <h4>No notifications</h4>
+                <p>You haven't received any notifications.</p>
+            </div>`;
+    }
+
     function createNotificationHtml(notification) {
         var dateDiff = getDateTimeDifference(notification.date);
-        var notRead = '';
-        if (!notification.isRead) {
-            notRead = 'notRead';
-        }
+        var unreadClass = notification.isRead ? '' : ' unread';
+        var unreadDotClass = notification.isRead ? ' is-read' : '';
 
         // The sender may be missing (e.g. a deleted account); fall back gracefully so one bad
         // entry can't break rendering. A broken/undefined image is swapped for the default
         // avatar by the global handler in functions.js.
         var fromUser = notification.fromUser || {};
-        var fromUserName = fromUser.userName || "Unknown user";
-        var fromUserImage = fromUser.imageUrl || DEFAULT_AVATAR;
+        var fromUserName = escapeHtml(fromUser.userName || "Unknown user");
+        var fromUserImage = escapeHtml(fromUser.imageUrl || DEFAULT_AVATAR);
+        var fromUserId = encodeURIComponent(notification.fromUserId || '');
+        var notificationId = escapeHtml(notification.id);
+        var message = escapeHtml(notification.message || '');
+        var safeDateDiff = escapeHtml(dateDiff);
 
         var content = `
-                        <div id="notification-${notification.id}" class="item d-flex justify-content-between align-items-center">
-                            <div class="figure">
-                                  <a href="/home/users?id=${notification.fromUserId}"><img src="${fromUserImage}" class="rounded-circle" style="height: 70px !important; width: 70px !important; object-fit:cover;" alt="image"></a>
+                        <div id="notification-${notificationId}" class="notification-card${unreadClass}">
+                            <a class="notification-avatar-wrap" href="/home/users?id=${fromUserId}" aria-label="Open ${fromUserName}'s profile">
+                                <img src="${fromUserImage}" alt="${fromUserName}" onerror="this.src='${DEFAULT_AVATAR}'">
+                            </a>
+                            <div class="notification-card-main">
+                                <div class="notification-card-top">
+                                    <h4 class="notification-card-name"><a href="/home/users?id=${fromUserId}">${fromUserName}</a></h4>
+                                    <span class="notification-card-time">${safeDateDiff}</span>
+                                </div>
+                                <span class="notification-card-message">${message}</span>
                             </div>
-                            <div class="text">
-                                <h4><a href="/home/users?id=${notification.fromUserId}">${fromUserName}</a></h4>
-                                <span>${notification.message}</span>
-                                <span class="main-color">${dateDiff}</span>
-                            </div>
-                            <div class="icon">
-                                    <div class='${notRead}'></div>
-                                    <a title="Delete notification" style="cursor: pointer;" onClick="removeNotification('${notification.id}')"><i class="flaticon-x-mark"></i></a>
+                            <div class="notification-actions">
+                                <span class="notification-unread-dot${unreadDotClass}" aria-hidden="true"></span>
+                                <button type="button" class="notification-delete" title="Delete notification" onClick="removeNotification('${notificationId}')">
+                                    <i class="flaticon-x-mark"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -144,6 +382,7 @@
         var result = await makeAjaxRequest("/api/Notification/GetNotificationsOfUser?userId=" + currentUserId, "GET");
         result.sort((a, b) => new Date(a.date) - new Date(b.date)).reverse();
         allNotifications = result;
+        updateNotificationCount(allNotifications.length);
     }
 
     var contaier = document.getElementById("notificationsBody");
@@ -166,7 +405,7 @@
             }
 
             if (allNotifications.length === 0) {
-                contaier.innerHTML = getNoResultHtml("No Notifications", "You haven't received any notifications.");
+                renderEmptyNotifications();
                 document.getElementById("loadMore").style.display = 'none';
                 return;
             }
@@ -187,11 +426,17 @@
             notificationCountInView += notifications.length;
 
             // Mark the just-shown notifications as read in the background — don't block rendering.
+            var unreadRenderedCount = 0;
             notifications.forEach(function (notification) {
                 if (notification != null && !notification.isRead) {
+                    unreadRenderedCount++;
+                    notification.isRead = true;
                     setNotificationSeemed(notification).catch(function () { });
                 }
             });
+            if (unreadRenderedCount > 0 && window.bumpRealtimeBadge) {
+                window.bumpRealtimeBadge("notifications", -unreadRenderedCount);
+            }
 
             if (notificationCountInView >= allNotifications.length) {
                 document.getElementById("loadMore").style.display = 'none';
@@ -222,11 +467,12 @@
                 allNotifications = allNotifications.filter(function (n) {
                     return n == null || n.id !== notificationId;
                 });
+                updateNotificationCount(allNotifications.length);
             }
 
             // If everything is gone, show the empty state and hide Load More.
             if (contaier.children.length === 0) {
-                contaier.innerHTML = getNoResultHtml("No Notifications", "You haven't received any notifications.");
+                renderEmptyNotifications();
                 document.getElementById("loadMore").style.display = 'none';
             }
         } catch (error) {
@@ -235,11 +481,22 @@
     }
 
     connection.on("ReceiveNotification", async function (notification) {
+        if (allNotifications) {
+            allNotifications = [notification].concat(allNotifications);
+            updateNotificationCount(allNotifications.length);
+        }
+        if (contaier.querySelector(".notifications-empty")) {
+            contaier.innerHTML = '';
+        }
         var notificationHtml = createNotificationHtml(notification);
         allContent = notificationHtml + allContent;
         contaier.insertAdjacentHTML("afterbegin", notificationHtml);
         notificationCountInView++;
-        setNotificationSeemed(notification).catch(function () { });
+        setNotificationSeemed(notification).then(function () {
+            if (window.bumpRealtimeBadge) {
+                window.bumpRealtimeBadge("notifications", -1);
+            }
+        }).catch(function () { });
     });
 
     fillToViewportHeight(document.getElementById("container"), 30);

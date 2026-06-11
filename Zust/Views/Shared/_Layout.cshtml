@@ -93,6 +93,56 @@
         .chat-body::-webkit-scrollbar-track {
             background: #f5f5f5; /* Color of the scrollbar track */
         }
+
+    .realtime-badge.is-empty {
+        display: none !important;
+    }
+
+    .sidemenu-area .sidemenu-body .sidemenu-nav .nav-item .nav-link {
+        position: relative;
+    }
+
+    .sidemenu-area .sidemenu-body .sidemenu-nav .nav-item .nav-link.has-realtime-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-right: 0;
+    }
+
+    .sidemenu-area .sidemenu-body .sidemenu-nav .nav-item .nav-link.has-realtime-badge .menu-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sidemenu-realtime-badge {
+        position: static;
+        flex: 0 0 auto;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background-color: #ff3b30;
+        color: var(--white-color);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 20px;
+        text-align: center;
+        box-shadow: 0 6px 14px rgba(255, 59, 48, .28);
+    }
+
+    .sidemenu-area.active-sidemenu-area .sidemenu-realtime-badge {
+        position: absolute;
+        top: 12px;
+        right: 8px;
+        transform: none;
+    }
+
+    .sidemenu-area.active-sidemenu-area .sidemenu-body .sidemenu-nav .nav-item .nav-link.has-realtime-badge {
+        display: inline-block;
+        padding-right: 0;
+    }
 </style>
 
 <body>
@@ -147,7 +197,7 @@
                                         <div class="friend-requests-btn">
                                             <i class="flaticon-user"></i>
                                             @*Number Of Friend Requests*@
-                                            <span id="numberOfFriendRequests">0</span>
+                                            <span class="realtime-badge is-empty" data-badge-type="friend-requests">0</span>
                                         </div>
                                     </a>
                                 </div>
@@ -158,7 +208,7 @@
                                         <div class="messages-btn">
                                             <i class="flaticon-email"></i>
                                             @*Number of Messages*@
-                                            <span>0</span>
+                                            <span class="realtime-badge is-empty" data-badge-type="messages">0</span>
                                         </div>
                                     </a>
                                 </div>
@@ -169,7 +219,7 @@
                                         <div class="notifications-btn">
                                             <i class="flaticon-bell"></i>
                                             @*Number of Notifications*@
-                                            <span id="numberOfNotifications">0</span>
+                                            <span class="realtime-badge is-empty" data-badge-type="notifications">0</span>
                                         </div>
                                     </a>
                                 </div>
@@ -252,7 +302,7 @@
                                         <a href="#" class="dropdown-bs-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <div class="friend-requests-btn">
                                                 <i class="flaticon-user"></i>
-                                                <span>0</span>
+                                                <span class="realtime-badge is-empty" data-badge-type="friend-requests">0</span>
                                             </div>
                                         </a>
 
@@ -343,7 +393,7 @@
                                         <a href="#" class="dropdown-bs-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <div class="messages-btn">
                                                 <i class="flaticon-email"></i>
-                                                <span>2</span>
+                                                <span class="realtime-badge is-empty" data-badge-type="messages">0</span>
                                             </div>
                                         </a>
 
@@ -401,7 +451,7 @@
                                         <a class="dropdown-bs-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <div class="notifications-btn">
                                                 <i class="flaticon-bell"></i>
-                                                <span></span>
+                                                <span class="realtime-badge is-empty" data-badge-type="notifications">0</span>
                                             </div>
                                         </a>
 
@@ -533,21 +583,24 @@
                         </a>
                     </li>
                     <li id="4" class="nav-item">
-                        <a href="/home/notifications" class="nav-link">
+                        <a href="/home/notifications" class="nav-link has-realtime-badge">
                             <span class="icon"><i class="flaticon-bell"></i></span>
                             <span class="menu-title">Notifications</span>
+                            <span class="realtime-badge sidemenu-realtime-badge is-empty" data-badge-type="notifications">0</span>
                         </a>
                     </li>
                     <li id="5" class="nav-item">
-                        <a href="/home/friend-requests" class="nav-link">
+                        <a href="/home/friend-requests" class="nav-link has-realtime-badge">
                             <span class="icon"><i class="flaticon-add"></i></span>
                             <span class="menu-title">Requests</span>
+                            <span class="realtime-badge sidemenu-realtime-badge is-empty" data-badge-type="friend-requests">0</span>
                         </a>
                     </li>
                     <li id="6" class="nav-item">
-                        <a href="/home/chats" class="nav-link">
+                        <a href="/home/chats" class="nav-link has-realtime-badge">
                             <span class="icon"><i class="flaticon-comment-1"></i></span>
                             <span class="menu-title">Chats</span>
+                            <span class="realtime-badge sidemenu-realtime-badge is-empty" data-badge-type="messages">0</span>
                         </a>
                     </li>
 
@@ -655,15 +708,18 @@
 
     </div>
     <!-- End Main Content Wrapper Area -->
-    <!-- Start Copyright Area -->
-    <div class="copyrights-area">
-        <div class="container">
-            <div class="row align-items-center">
-                <p><i class="ri-copyright-line"></i> 2023 Zust. All Rights Reserved by <a href="https://aykhan.net" target="_blank">aykhan.net</a></p>
+    @if (ViewData["HideFooter"] is not true)
+    {
+        <!-- Start Copyright Area -->
+        <div class="copyrights-area">
+            <div class="container">
+                <div class="row align-items-center">
+                    <p><i class="ri-copyright-line"></i> 2023 Zust. All Rights Reserved by <a href="https://aykhan.net" target="_blank">aykhan.net</a></p>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- End Copyright Area -->
+        <!-- End Copyright Area -->
+    }
     <!-- Start Go Top Area -->
     <div class="go-top">
         <i class="ri-arrow-up-line"></i>
@@ -691,29 +747,39 @@
         // play the notification sound and keep the navbar badge counts live. playNotificationSound
         // is throttled, so the paired events the server emits for one action never double-chime.
         (function () {
-            if (typeof connection === "undefined" || !connection) {
-                return;
+            function setBadgeCount(type, value) {
+                var n = parseInt(value, 10);
+                var count = isNaN(n) || n < 0 ? 0 : n;
+                document.querySelectorAll('[data-badge-type="' + type + '"]').forEach(function (el) {
+                    el.innerHTML = count > 99 ? "99+" : count;
+                    el.classList.toggle("is-empty", count === 0);
+                    el.setAttribute("aria-label", count + " new " + type.replace("-", " "));
+                });
             }
 
-            function bumpBadge(id, delta) {
-                var el = document.getElementById(id);
-                if (!el) {
-                    return;
-                }
-                var n = parseInt(el.innerHTML, 10);
-                el.innerHTML = (isNaN(n) ? 0 : n) + delta;
+            function bumpBadge(type, delta) {
+                var firstBadge = document.querySelector('[data-badge-type="' + type + '"]');
+                var current = firstBadge ? parseInt(firstBadge.innerHTML, 10) : 0;
+                setBadgeCount(type, (isNaN(current) ? 0 : current) + delta);
+            }
+
+            window.setRealtimeBadgeCount = setBadgeCount;
+            window.bumpRealtimeBadge = bumpBadge;
+
+            if (typeof connection === "undefined" || !connection) {
+                return;
             }
 
             // New notification (comments, friend-request accept/decline, generic notifications).
             connection.on("ReceiveNotification", function () {
                 playNotificationSound();
-                bumpBadge("numberOfNotifications", 1);
+                bumpBadge("notifications", 1);
             });
 
             // Incoming friend request.
             connection.on("ReceiveFriendRequest", function () {
                 playNotificationSound();
-                bumpBadge("numberOfFriendRequests", 1);
+                bumpBadge("friend-requests", 1);
             });
 
             // Someone responded to a friend request you sent (no badge change here; the
@@ -725,6 +791,7 @@
             // Incoming chat message — softer single-note tone.
             connection.on("ReceiveMessage", function () {
                 playNotificationSound("message");
+                bumpBadge("messages", 1);
             });
         })();
     </script>
@@ -735,8 +802,11 @@
     var currentUserId = '@user.Id.ToString()';
 
     async function setData(){
-        document.getElementById("numberOfFriendRequests").innerHTML = await makeAjaxRequest("/api/FriendRequest/GetPendingReceivedFriendRequestsCount?userId=" + currentUserId, "GET")
-        document.getElementById("numberOfNotifications").innerHTML = await makeAjaxRequest("/api/Notification/GetUnreadNotificationCount?userId=" + currentUserId, "GET");
+        var friendRequestCount = await makeAjaxRequest("/api/FriendRequest/GetPendingReceivedFriendRequestsCount?userId=" + currentUserId, "GET");
+        var notificationCount = await makeAjaxRequest("/api/Notification/GetUnreadNotificationCount?userId=" + currentUserId, "GET");
+        window.setRealtimeBadgeCount("friend-requests", friendRequestCount);
+        window.setRealtimeBadgeCount("notifications", notificationCount);
+        window.setRealtimeBadgeCount("messages", 0);
     }
 
     setData();
@@ -871,4 +941,3 @@
 
 
 </script>
-

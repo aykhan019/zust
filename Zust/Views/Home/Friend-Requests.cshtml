@@ -7,88 +7,274 @@
 }
 
 <style>
-    .item {
-        width: 600px; /* Increase the width to your desired value */
+    #container {
+        margin-top: 0;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
-    .accept-icon {
+    .requests-shell {
+        width: 100%;
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fcfa 100%);
+        border: 1px solid rgba(25, 135, 84, .12);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(30, 55, 90, .08);
+    }
+
+    .requests-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .requests-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .requests-title-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(25, 135, 84, .1);
         color: var(--main-color);
-        font-size: 25px !important;
-        cursor: pointer;
-        min-height: 25px;
+        font-size: 26px;
+        flex: 0 0 auto;
     }
 
-    .decline-icon {
+    .requests-title {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .requests-subtitle {
+        display: block;
+        margin-top: 4px;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
+
+    .requests-count {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 8px 14px;
+        background-color: #eef9f2;
+        color: var(--main-color);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    #requestsBody {
+        display: grid;
+        gap: 12px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .request-card {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(30, 55, 90, .05);
+        transition: var(--transition);
+    }
+
+    .request-card:hover {
+        border-color: rgba(25, 135, 84, .28);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(30, 55, 90, .09);
+    }
+
+    .request-avatar-wrap {
+        width: 58px;
+        height: 58px;
+        flex: 0 0 auto;
+    }
+
+    .request-avatar-wrap img {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        background-color: #e2e8f0;
+        box-shadow: 0 8px 20px rgba(30, 55, 90, .12);
+    }
+
+    .request-card-main {
+        min-width: 0;
+    }
+
+    .request-card-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 5px;
+    }
+
+    .request-card-name {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 16px;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .request-card-name:hover {
+        color: var(--main-color);
+    }
+
+    .request-card-time {
+        color: #91a0af;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .request-card-text {
+        display: block;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
+
+    .request-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .request-action {
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        transition: var(--transition);
+    }
+
+    .request-action.accept {
+        background-color: var(--main-color);
+        color: #ffffff;
+    }
+
+    .request-action.accept:hover {
+        color: #ffffff;
+        box-shadow: 0 10px 22px rgba(25, 135, 84, .22);
+    }
+
+    .request-action.decline {
+        background-color: #fff1f0;
         color: var(--red-color);
-        font-size: 25px !important;
-        cursor: pointer;
-        min-height: 25px;
     }
 
-    .decline-icon:hover {
-        color: var(--red-color) !important;
+    .request-action.decline:hover {
+        color: var(--red-color);
+        box-shadow: 0 10px 22px rgba(244, 67, 54, .16);
     }
 
-
-    @@media only screen and (max-width: 700px) {
-        .item {
-            width: 100%;
-            /*background-color: red;*/
-        }
-
-        #requestsBody {
-            width: 100%;
-            /*background-color: green;*/
-            margin: 0px;
-        }
-
-        .all-notifications-body {
-            padding: 0px;
-            margin: 0px;
-            width: 100%;
-            /*background-color: yellow;*/
-        }
+    .requests-empty {
+        padding: 48px 18px;
+        border: 1px dashed #dce5ee;
+        border-radius: 8px;
+        background-color: #fbfdfc;
+        text-align: center;
     }
 
-    .icon a {
-        margin-right: 10px;
-    }   
+    .requests-empty h4 {
+        margin-bottom: 8px;
+        color: var(--black-color);
+        font-size: 18px;
+    }
+
+    .requests-empty p {
+        margin: 0;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
 
     .custom-spinner-color {
         color: var(--main-color);
     }
 
-    #spinner{
-        margin: auto;
-        margin-top: 10px;
+    #spinner {
+        display: block;
+        margin: 30px auto 8px;
     }
 
-    #container{
-        margin-top: 0px;
-        margin-bottom: 0px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        /* Fill the full content area (not capped at 850px) so the white card spans the whole
-           width, and fillToViewportHeight() stretches it to the bottom of the viewport — the
-           card stays full width + height even when there are no requests. */
-        width: 100%;
-        max-width: none;
+    @@media only screen and (max-width: 767px) {
+        .requests-shell {
+            padding: 16px;
+        }
+
+        .requests-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .request-card {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .request-actions {
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+        }
     }
 </style>
 
 <div class="all-notifications-body" id="container">
+    <div class="requests-shell">
+        <div class="requests-hero">
+            <div class="requests-title-wrap">
+                <span class="requests-title-icon"><i class="ri-user-add-line"></i></span>
+                <div>
+                    <h3 class="requests-title">Friend Requests</h3>
+                    <span class="requests-subtitle">Review new people who want to connect with you.</span>
+                </div>
+            </div>
+            <span class="requests-count" id="requests-count">0 pending</span>
+        </div>
 
-    <div class="all-notifications-header d-flex justify-content-between align-items-center">
-        <h3 class="text-center w-100">Friend Requests</h3>
+        <div id="requestsBody">
+        </div>
+
+        <div id="spinner" class="spinner-border custom-spinner-color" role="status">
+            <span class="sr-only"></span>
+        </div>
     </div>
-
-    <div id="requestsBody">
-    </div>
-
-    <div id="spinner" class="spinner-border custom-spinner-color" role="status">
-        <span class="sr-only"></span>
-    </div>    
 </div>
 
 <script src="~/assets/js/jquery.min.js"></script>
@@ -109,6 +295,29 @@
     }
 
     var requestsBody = document.getElementById("requestsBody");
+    var requestListCache = [];
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function updateRequestCount(count) {
+        var label = count === 1 ? 'pending request' : 'pending requests';
+        document.getElementById('requests-count').innerHTML = count + ' ' + label;
+    }
+
+    function renderEmptyRequests(title, message) {
+        requestsBody.innerHTML = `
+            <div class="requests-empty">
+                <h4>${escapeHtml(title)}</h4>
+                <p>${escapeHtml(message)}</p>
+            </div>`;
+    }
 
     async function getReceivedFriendRequests() {
         var id = '@user.Id.ToString()';
@@ -131,50 +340,83 @@
         // The sender may be missing (e.g. a deleted account); fall back gracefully. A broken or
         // undefined image is swapped for the default avatar by the handler in functions.js.
         var sender = friendRequest.sender || {};
-        var senderName = sender.userName || "Unknown user";
-        var senderImage = sender.imageUrl || DEFAULT_AVATAR;
+        var senderName = escapeHtml(sender.userName || "Unknown user");
+        var senderImage = escapeHtml(sender.imageUrl || DEFAULT_AVATAR);
+        var senderId = encodeURIComponent(friendRequest.senderId || '');
+        var requestId = escapeHtml(friendRequest.id);
+        var safeDate = escapeHtml(date);
         var content = `
-                           <div id=${friendRequest.id} class="item d-flex justify-content-between align-items-center">
-                            <div class="figure">
-                                <a href="/home/users?id=${friendRequest.senderId}">
-                                   <img src="${senderImage}" class="rounded-circle" alt="image">
-                                </a>
+                        <div id="${requestId}" class="request-card">
+                            <a class="request-avatar-wrap" href="/home/users?id=${senderId}" aria-label="Open ${senderName}'s profile">
+                                <img src="${senderImage}" alt="${senderName}" onerror="this.src='${DEFAULT_AVATAR}'">
+                            </a>
+                            <div class="request-card-main">
+                                <div class="request-card-top">
+                                    <h4 class="request-card-name"><a href="/home/users?id=${senderId}">${senderName}</a></h4>
+                                    <span class="request-card-time">${safeDate}</span>
+                                </div>
+                                <span class="request-card-text">Sent you a friend request</span>
                             </div>
-                            <div class="text">
-                                <h4><a href="/home/users?id=${friendRequest.senderId}">${senderName}</a></h4>
-                                <span>Sent you a friend request</span>
-                                <span class="main-color">${date}</span>
-                            </div>
-                            <div class="icon" class="gap-5">
-                                <a title="Accept Request" onclick="acceptRequest('${friendRequest.id}')"><i class="flaticon-check-mark accept-icon"></i></a>
-                                <a title="Decline Request" onclick="declineRequest('${friendRequest.id}')"><i class="flaticon-x-mark decline-icon"></i></a>
+                            <div class="request-actions">
+                                <button type="button" class="request-action accept" title="Accept request" onclick="acceptRequest('${requestId}')">
+                                    <i class="flaticon-check-mark"></i>
+                                </button>
+                                <button type="button" class="request-action decline" title="Decline request" onclick="declineRequest('${requestId}')">
+                                    <i class="flaticon-x-mark"></i>
+                                </button>
                             </div>
                         </div>
                     `;
         return content;
     }
 
+    function renderRequests(requests) {
+        updateRequestCount(requests.length);
+
+        if (!requests || requests.length === 0) {
+            renderEmptyRequests("No requests", "You have received no friend requests.");
+            return;
+        }
+
+        requestsBody.innerHTML = requests.map(getFriendRequestHtml).join('');
+    }
 
     async function showReceivedFriendRequests() {
         var requests = await getReceivedFriendRequests();
         if (requests != null && requests.length > 0){
             requests.sort((a, b) => new Date(a.requestDate) - new Date(b.requestDate)).reverse();
-            var content = '';
-            for (var i = 0; i < requests.length; i++) {
-                var request = requests[i];
-                var subContent = getFriendRequestHtml(request);
-                content += subContent;
-            }
-            requestsBody.innerHTML = content;
+            requestListCache = requests;
+            renderRequests(requestListCache);
         }
         else{
-            requestsBody.innerHTML= getNoResultHtml("No Requests", "You have recieved no friend requests.")
+            requestListCache = [];
+            renderRequests(requestListCache);
         }
         stopSpinner();
     }
 
+    function removeRequestFromView(friendRequestId) {
+        var request = document.getElementById(friendRequestId);
+        if (request) {
+            request.remove();
+        }
+
+        requestListCache = requestListCache.filter(function (item) {
+            return item.id !== friendRequestId;
+        });
+        updateRequestCount(requestListCache.length);
+
+        if (requestListCache.length === 0) {
+            renderEmptyRequests("No requests", "You have received no friend requests.");
+        }
+
+        if (window.bumpRealtimeBadge) {
+            window.bumpRealtimeBadge('friend-requests', -1);
+        }
+    }
+
     function acceptRequest(friendRequestId) {
-        document.getElementById(friendRequestId).remove();
+        removeRequestFromView(friendRequestId);
         $.ajax({
             url: `/api/FriendRequest/AcceptRequest?requestId=` + friendRequestId,
             method: 'POST',
@@ -194,7 +436,7 @@
     }
 
     function declineRequest(friendRequestId) {
-        document.getElementById(friendRequestId).remove();
+        removeRequestFromView(friendRequestId);
         $.ajax({
             url: `/api/FriendRequest/DeclineRequest?requestId=` + friendRequestId,
             method: 'POST',
@@ -216,8 +458,8 @@
     }
 
     connection.on("ReceiveFriendRequest", function(friendRequest){
-        var html = getFriendRequestHtml(friendRequest);
-        requestsBody.innerHTML = html + requestsBody.innerHTML;
+        requestListCache = [friendRequest].concat(requestListCache);
+        renderRequests(requestListCache);
     });
 
     fillToViewportHeight(document.getElementById("container"), 30);

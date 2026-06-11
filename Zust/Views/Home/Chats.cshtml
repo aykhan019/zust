@@ -13,35 +13,236 @@
         margin-bottom: 0px;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         width: 100%; /* hold full width immediately, before any chats load */
-        /* Span the full content area (not capped at 850px) and, via fillToViewportHeight(),
-           stretch to the bottom of the viewport so the white card stays full width + height
-           even when there are no chats. */
+        padding: 0;
         max-width: none;
+        background: transparent;
+        box-shadow: none;
     }
 
-    /* The list holder fills the container (capped for readability) and keeps its
-       width even while empty, so the layout doesn't shift once chats arrive. */
-    #my-chats {
+    .chats-shell {
         width: 100%;
-        max-width: 600px;
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fcfa 100%);
+        border: 1px solid rgba(25, 135, 84, .12);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(30, 55, 90, .08);
+    }
+
+    .chats-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .chats-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .chats-title-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(25, 135, 84, .1);
+        color: var(--main-color);
+        font-size: 26px;
+        flex: 0 0 auto;
+    }
+
+    .chats-title {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .chats-subtitle {
+        display: block;
+        margin-top: 4px;
+        color: var(--paragraph-color);
+        font-size: 14px;
+    }
+
+    .chats-count {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 8px 14px;
+        background-color: #eef9f2;
+        color: var(--main-color);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .chats-toolbar {
+        position: relative;
+        margin-bottom: 18px;
+    }
+
+    .chats-toolbar i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        color: #8b98a8;
+        font-size: 18px;
+        transform: translateY(-50%);
+    }
+
+    .chats-search {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px 0 46px;
+        border: 1px solid #e4ebf2;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        color: var(--black-color);
+        font-size: 14px;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .chats-search:focus {
+        border-color: rgba(25, 135, 84, .55);
+        background-color: #ffffff;
+        box-shadow: 0 8px 20px rgba(25, 135, 84, .1);
+    }
+
+    #my-chats {
+        display: grid;
+        gap: 12px;
+        width: 100%;
         min-height: 1px;
     }
 
-    .item {
+    .chat-card {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 14px;
         width: 100%;
-        padding-bottom: 10px;
-        cursor: pointer;
+        padding: 14px;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        background-color: #ffffff;
+        color: inherit;
+        box-shadow: 0 8px 24px rgba(30, 55, 90, .05);
+        transition: var(--transition);
     }
 
-    /* Reserve the avatar's space and show a neutral placeholder immediately, so rows
-       don't visibly pop in one by one as each remote image finishes downloading. */
-    .item .figure img {
-        height: 70px;
-        width: 70px;
+    .chat-card:hover {
+        color: inherit;
+        border-color: rgba(25, 135, 84, .28);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(30, 55, 90, .09);
+    }
+
+    .chat-avatar-wrap {
+        position: relative;
+        width: 58px;
+        height: 58px;
+        flex: 0 0 auto;
+    }
+
+    .chat-avatar-wrap img {
+        width: 58px;
+        height: 58px;
         object-fit: cover;
-        background-color: #e2e6ea;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        background-color: #e2e8f0;
+        box-shadow: 0 8px 20px rgba(30, 55, 90, .12);
+    }
+
+    .chat-avatar-status {
+        position: absolute;
+        right: 3px;
+        bottom: 4px;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        background-color: var(--main-color);
+    }
+
+    .chat-card-main {
+        min-width: 0;
+    }
+
+    .chat-card-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 5px;
+    }
+
+    .chat-card-name {
+        margin: 0;
+        color: var(--black-color);
+        font-size: 16px;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-card-time {
+        color: #91a0af;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .chat-card-message {
+        display: block;
+        color: var(--paragraph-color);
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-card-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f6f4;
+        color: var(--main-color);
+        font-size: 18px;
+    }
+
+    .chats-empty {
+        padding: 48px 18px;
+        border: 1px dashed #dce5ee;
+        border-radius: 8px;
+        background-color: #fbfdfc;
+        text-align: center;
+    }
+
+    .chats-empty h4 {
+        margin-bottom: 8px;
+        color: var(--black-color);
+        font-size: 18px;
+    }
+
+    .chats-empty p {
+        margin: 0;
+        color: var(--paragraph-color);
+        font-size: 14px;
     }
 
     .custom-spinner-color {
@@ -49,23 +250,55 @@
     }
 
     #spinner {
-        margin: auto;
-        margin-top: 10px;
+        display: block;
+        margin: 30px auto 8px;
+    }
+
+    @@media only screen and (max-width: 767px) {
+        .chats-shell {
+            padding: 16px;
+        }
+
+        .chats-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .chat-card {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .chat-card-action {
+            display: none;
+        }
     }
 </style>
 
 
 <div class="all-notifications-body" id="container">
+    <div class="chats-shell">
+        <div class="chats-hero">
+            <div class="chats-title-wrap">
+                <span class="chats-title-icon"><i class="ri-chat-3-line"></i></span>
+                <div>
+                    <h3 class="chats-title">Chats</h3>
+                    <span class="chats-subtitle">Pick up where your conversations left off.</span>
+                </div>
+            </div>
+            <span class="chats-count" id="chats-count">0 conversations</span>
+        </div>
 
-    <div class="all-notifications-header d-flex justify-content-between align-items-center">
-        <h3 class="text-center w-100">Chats</h3>
-    </div>
+        <div class="chats-toolbar">
+            <i class="ri-search-line"></i>
+            <input class="chats-search" id="chat-search" type="search" placeholder="Search chats...">
+        </div>
 
-    <div id="my-chats">
-    </div>
+        <div id="my-chats">
+        </div>
 
-    <div id="spinner" class="spinner-border custom-spinner-color" role="status">
-        <span class="sr-only"></span>
+        <div id="spinner" class="spinner-border custom-spinner-color" role="status">
+            <span class="sr-only"></span>
+        </div>
     </div>
 </div>
 
@@ -78,6 +311,7 @@
     localStorage.setItem('activeMenuItem', '#6');
 
     var currentUserId = '@user.Id.ToString()';
+    var chatListCache = [];
 
     function startSpinner() {
         $('#spinner').css("visibility", "visible");
@@ -87,24 +321,79 @@
         $('#spinner').css("visibility", "hidden");
     }
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatChatTime(value) {
+        if (!value) {
+            return '';
+        }
+
+        var date = new Date(value);
+        if (isNaN(date.getTime())) {
+            return '';
+        }
+
+        var now = new Date();
+        var sameDay = date.toDateString() === now.toDateString();
+        if (sameDay) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    function updateChatCount(count) {
+        var label = count === 1 ? 'conversation' : 'conversations';
+        document.getElementById('chats-count').innerHTML = count + ' ' + label;
+    }
+
     var createUserChatHtml = function (chat) {
+        var safeId = encodeURIComponent(chat.id);
+        var safeName = escapeHtml(chat.userName);
+        var safeImage = escapeHtml(chat.imageUrl || '/assets/images/user/defaultUserImage.png');
+        var safeMessage = escapeHtml(chat.lastMessage || 'No messages yet.');
+        var safeTime = escapeHtml(formatChatTime(chat.lastMessageDate));
+
         var content = `
-                <div class="item d-flex justify-content-between align-items-center" onclick=redirectToChat('${chat.id}')>
-                    <div class="figure">
-                        <a href="/home/chats?userId=${chat.id}"><img src="${chat.imageUrl}" class="rounded-circle" alt="image"></a>
+                <a class="chat-card" href="/home/chats?userId=${safeId}" aria-label="Open chat with ${safeName}">
+                    <div class="chat-avatar-wrap">
+                        <img src="${safeImage}" alt="${safeName}" onerror="this.src='/assets/images/user/defaultUserImage.png'">
+                        <span class="chat-avatar-status"></span>
                     </div>
-                    <div class="text">
-                        <h4><a href="/home/chats?userId=${chat.id}">${chat.userName}</a></h4>
-                        <span>${chat.lastMessage}</span>
+                    <div class="chat-card-main">
+                        <div class="chat-card-top">
+                            <h4 class="chat-card-name">${safeName}</h4>
+                            <span class="chat-card-time">${safeTime}</span>
+                        </div>
+                        <span class="chat-card-message">${safeMessage}</span>
                     </div>
-                </div>
-                    <hr \>
+                    <span class="chat-card-action"><i class="ri-arrow-right-s-line"></i></span>
+                </a>
             `;
         return content;
     };
 
-    function redirectToChat(userId){
-        window.location.href = `/home/chats?userId=${userId}`;
+    function renderChats(chatsToRender) {
+        var chats = document.getElementById("my-chats");
+        updateChatCount(chatsToRender.length);
+
+        if (!chatsToRender || chatsToRender.length === 0) {
+            chats.innerHTML = `
+                <div class="chats-empty">
+                    <h4>No chats found</h4>
+                    <p>Start a conversation or try a different search.</p>
+                </div>`;
+            return;
+        }
+
+        chats.innerHTML = chatsToRender.map(createUserChatHtml).join('');
     }
 
     async function getUserChats() {
@@ -118,11 +407,17 @@
             var chats = document.getElementById("my-chats");
 
             if (!chatList || chatList.length === 0) {
-                chats.innerHTML = getNoResultHtml("No Chats", "You have no conversations yet.");
+                updateChatCount(0);
+                chats.innerHTML = `
+                    <div class="chats-empty">
+                        <h4>No chats yet</h4>
+                        <p>Your conversations will appear here after you send or receive a message.</p>
+                    </div>`;
                 return;
             }
 
-            chats.innerHTML = chatList.map(createUserChatHtml).join('');
+            chatListCache = chatList;
+            renderChats(chatListCache);
         } catch (error) {
             console.error("Error fetching user chats:", error);
         } finally {
@@ -134,6 +429,19 @@
     }
 
     fillToViewportHeight(document.getElementById("container"), 30);
+    document.getElementById("chat-search").addEventListener("input", function (event) {
+        var query = event.target.value.trim().toLowerCase();
+        if (!query) {
+            renderChats(chatListCache);
+            return;
+        }
+
+        var filteredChats = chatListCache.filter(function (chat) {
+            return (chat.userName || '').toLowerCase().includes(query)
+                || (chat.lastMessage || '').toLowerCase().includes(query);
+        });
+        renderChats(filteredChats);
+    });
     startSpinner();
     getUserChats();
 

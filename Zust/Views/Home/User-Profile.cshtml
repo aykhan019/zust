@@ -15,6 +15,35 @@
         object-fit: cover !important; /* Maintain aspect ratio and cover the container */
     }
 
+    .my-profile-inner-box .profile-info-box .inner-info-box {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .info-text {
+        width: auto !important;
+        flex: 1 1 240px;
+        min-width: 0;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .statistics {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .statistics li {
+        min-width: 72px;
+        margin-right: 22px;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .statistics li::before {
+        right: -13px;
+    }
+
+    .my-profile-inner-box .profile-info-box .inner-info-box .statistics li .item-text {
+        white-space: nowrap;
+    }
+
     .cancel-btn {
         background-color: var(--yellow-color);
         color: var(--black-color);
