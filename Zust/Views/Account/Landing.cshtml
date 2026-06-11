@@ -113,7 +113,7 @@
         }
 
         .landing-hero {
-            padding: 74px 0 54px;
+            padding: 40px 0 54px;
         }
 
         .landing-hero-grid {
@@ -169,6 +169,12 @@
         .landing-proof .avatar-stack {
             display: flex;
             align-items: center;
+            flex-shrink: 0;
+            padding-right: 10px;
+        }
+
+        .landing-proof .avatar-stack img:last-child {
+            margin-right: 0;
         }
 
         .landing-proof .avatar-stack img {
@@ -658,10 +664,10 @@
 
                         <div class="landing-proof">
                             <div class="avatar-stack">
-                                <img src="~/assets/images/user/user-1.jpg" alt="Member avatar">
-                                <img src="~/assets/images/user/user-10.jpg" alt="Member avatar">
-                                <img src="~/assets/images/user/user-27.jpg" alt="Member avatar">
-                                <img src="~/assets/images/user/user-39.jpg" alt="Member avatar">
+                                <img src="~/assets/images/landing/avatar-member-1.png" alt="Member avatar">
+                                <img src="~/assets/images/landing/avatar-member-2.png" alt="Member avatar">
+                                <img src="~/assets/images/landing/avatar-member-3.png" alt="Member avatar">
+                                <img src="~/assets/images/landing/avatar-member-4.png" alt="Member avatar">
                             </div>
                             <span>Follow updates, message friends, and discover familiar faces from one friendly dashboard.</span>
                         </div>
@@ -676,13 +682,13 @@
                         <div class="app-preview-body">
                             <div class="preview-card preview-feed">
                                 <div class="preview-author">
-                                    <img src="~/assets/images/user/user-13.jpg" alt="Aisha avatar">
+                                    <img src="~/assets/images/landing/avatar-feed.png" alt="Maren Tolliver avatar">
                                     <div>
-                                        <strong>Aisha Hassan</strong>
+                                        <strong>Maren Tolliver</strong>
                                         <span>Shared a new memory</span>
                                     </div>
                                 </div>
-                                <img class="preview-post-image" src="~/assets/images/news-feed-post/post-3.jpg" alt="Feed post preview">
+                                <img class="preview-post-image" src="~/assets/images/landing/feed-post.jpg" alt="Feed post preview">
                                 <div class="preview-reactions">
                                     <span><i class="ri-heart-3-fill"></i> 128 Likes</span>
                                     <span><i class="ri-chat-3-line"></i> 36 Comments</span>
@@ -694,16 +700,16 @@
                                 <div class="preview-card preview-list">
                                     <h3>Chats</h3>
                                     <div class="preview-list-item">
-                                        <img src="~/assets/images/user/user-56.jpg" alt="Olivia avatar">
+                                        <img src="~/assets/images/landing/avatar-chat-1.png" alt="Esme Dovan avatar">
                                         <div>
-                                            <strong>Olivia Chen</strong>
+                                            <strong>Esme Dovan</strong>
                                             <span>Sent a message</span>
                                         </div>
                                     </div>
                                     <div class="preview-list-item">
-                                        <img src="~/assets/images/user/user-58.jpg" alt="Nina avatar">
+                                        <img src="~/assets/images/landing/avatar-chat-2.png" alt="Yara Felden avatar">
                                         <div>
-                                            <strong>Nina Lopez</strong>
+                                            <strong>Yara Felden</strong>
                                             <span>Reacted to your post</span>
                                         </div>
                                     </div>
@@ -712,9 +718,9 @@
                                 <div class="preview-card preview-friend">
                                     <div class="preview-friend-cover"></div>
                                     <div class="preview-friend-body">
-                                        <img src="~/assets/images/user/user-32.jpg" alt="Lily avatar">
-                                        <h3>Lily Cohen</h3>
-                                        <p>user1660@zust.demo</p>
+                                        <img src="~/assets/images/landing/avatar-profile.png" alt="Noor Calvert avatar">
+                                        <h3>Noor Calvert</h3>
+                                        <p>noor.calvert@zust.demo</p>
                                         <div class="preview-stats">
                                             <span><strong>191</strong>Likes</span>
                                             <span><strong>41</strong>Following</span>
@@ -740,7 +746,7 @@
                     <div class="feature-grid">
                         <div class="feature-card">
                             <div class="feature-media">
-                                <img src="~/assets/images/news-feed-post/post-1.jpg" alt="News feed post preview">
+                                <img src="~/assets/images/landing/news-feed.jpg" alt="News feed post preview">
                             </div>
                             <div class="feature-icon"><i class="ri-newspaper-line"></i></div>
                             <div class="feature-card-body">

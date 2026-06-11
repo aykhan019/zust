@@ -8131,14 +8131,16 @@ Marketplace Area CSS
 Profile Authentication Area CSS
 =================================================*/
 .profile-authentication-area {
-    padding-top: 150px;
-    padding-bottom: 150px;
+    padding-top: 40px;
+    padding-bottom: 40px;
     background-image: url(../../assets/images/profile-authentication-bg.jpg);
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    height: 100%;
+    min-height: 100vh;
     width: 100%;
+    display: flex;
+    align-items: center;
     position: relative;
     z-index: 1;
 }
