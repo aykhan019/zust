@@ -11,6 +11,15 @@ namespace Zust.Web.Controllers.ViewControllers
     public class AccountController : Controller
     {
         /// <summary>
+        /// Displays the public landing page.
+        /// </summary>
+        /// <returns>The landing view.</returns>
+        public IActionResult Landing()
+        {
+            return View();
+        }
+
+        /// <summary>
         /// Displays the login view.
         /// </summary>
         /// <returns>The login view.</returns>

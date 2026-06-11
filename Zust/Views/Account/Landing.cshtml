@@ -1,0 +1,833 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Zust - Connect With Your Circle";
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/animate.min.css">
+    <link rel="stylesheet" href="~/assets/css/remixicon.css">
+    <link rel="stylesheet" href="~/assets/css/flaticon.css">
+    <link rel="stylesheet" href="~/assets/css/style.css">
+    <link rel="stylesheet" href="~/assets/css/responsive.css">
+    <link rel="icon" type="image/png" href="~/assets/images/favicon.png">
+
+    <title>@ViewData["Title"]</title>
+
+    <style>
+        body {
+            background: #f7f8fb;
+            color: var(--black-color);
+        }
+
+        .landing-page {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .landing-container {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .landing-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(255, 255, 255, .94);
+            border-bottom: 1px solid #edf1f5;
+            box-shadow: 0 10px 30px rgba(81, 83, 85, .05);
+            backdrop-filter: blur(10px);
+        }
+
+        .landing-nav {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .landing-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--black-color);
+            font-family: var(--heading-font-family);
+            font-weight: 800;
+            font-size: 28px;
+        }
+
+        .landing-brand img {
+            width: 150px;
+            height: 46px;
+            object-fit: contain;
+        }
+
+        .landing-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .landing-btn {
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 8px;
+            padding: 0 22px;
+            border: 1px solid transparent;
+            font-weight: 700;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .landing-btn-primary {
+            color: var(--white-color);
+            background: var(--main-color);
+            box-shadow: 0 14px 26px rgba(25, 135, 84, .18);
+        }
+
+        .landing-btn-primary:hover {
+            color: var(--white-color);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(25, 135, 84, .24);
+        }
+
+        .landing-btn-secondary {
+            color: var(--main-color);
+            background: #eef9f3;
+            border-color: rgba(25, 135, 84, .14);
+        }
+
+        .landing-btn-secondary:hover {
+            color: var(--white-color);
+            background: var(--main-color);
+        }
+
+        .landing-hero {
+            padding: 74px 0 54px;
+        }
+
+        .landing-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, .92fr) minmax(520px, 1.08fr);
+            gap: 48px;
+            align-items: center;
+        }
+
+        .landing-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            color: var(--main-color);
+            background: #eef9f3;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .landing-hero h1 {
+            margin-bottom: 18px;
+            color: var(--black-color);
+            font-size: 58px;
+            line-height: 1.06;
+            letter-spacing: 0;
+        }
+
+        .landing-hero p {
+            max-width: 560px;
+            margin-bottom: 28px;
+            color: var(--paragraph-color);
+            font-size: 17px;
+        }
+
+        .landing-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .landing-proof {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: var(--paragraph-color);
+            font-size: 14px;
+        }
+
+        .landing-proof .avatar-stack {
+            display: flex;
+            align-items: center;
+        }
+
+        .landing-proof .avatar-stack img {
+            width: 38px;
+            height: 38px;
+            margin-right: -10px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--white-color);
+            box-shadow: 0 10px 20px rgba(81, 83, 85, .08);
+        }
+
+        .app-preview {
+            position: relative;
+            border-radius: 8px;
+            background: var(--white-color);
+            border: 1px solid #edf1f5;
+            box-shadow: 0 20px 55px rgba(81, 83, 85, .10);
+            overflow: hidden;
+        }
+
+        .app-preview-banner {
+            min-height: 132px;
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(rgba(9, 23, 63, .66), rgba(9, 23, 63, .66)), url("/assets/images/friends-bg.jpg") center/cover;
+            color: var(--white-color);
+        }
+
+        .app-preview-banner h2 {
+            color: var(--white-color);
+            font-size: 32px;
+        }
+
+        .preview-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .14);
+            color: var(--white-color);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .preview-online span {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--optional-color);
+        }
+
+        .app-preview-body {
+            padding: 22px;
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 18px;
+            background: #f7f8fb;
+        }
+
+        .preview-card {
+            border-radius: 8px;
+            background: var(--white-color);
+            border: 1px solid #edf1f5;
+            box-shadow: 0 10px 30px rgba(81, 83, 85, .05);
+        }
+
+        .preview-feed {
+            padding: 18px;
+        }
+
+        .preview-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .preview-author img,
+        .preview-list img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .preview-author strong,
+        .preview-list strong {
+            display: block;
+            color: var(--black-color);
+            font-size: 15px;
+        }
+
+        .preview-author span,
+        .preview-list span {
+            display: block;
+            color: var(--paragraph-color);
+            font-size: 13px;
+        }
+
+        .preview-post-image {
+            width: 100%;
+            height: 178px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+
+        .preview-reactions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--paragraph-color);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .preview-reactions i {
+            color: var(--main-color);
+            margin-right: 4px;
+        }
+
+        .preview-side {
+            display: grid;
+            gap: 18px;
+        }
+
+        .preview-list {
+            padding: 18px;
+        }
+
+        .preview-list h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .preview-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .preview-list-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .preview-friend {
+            overflow: hidden;
+        }
+
+        .preview-friend-cover {
+            height: 78px;
+            background: url("/assets/images/friends/friends-bg-4.jpg") center/cover;
+        }
+
+        .preview-friend-body {
+            padding: 0 18px 18px;
+            text-align: center;
+        }
+
+        .preview-friend-body img {
+            width: 82px;
+            height: 82px;
+            margin-top: -41px;
+            margin-bottom: 10px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--white-color);
+        }
+
+        .preview-friend-body h3 {
+            margin-bottom: 4px;
+            font-size: 18px;
+        }
+
+        .preview-friend-body p {
+            margin-bottom: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+            color: var(--paragraph-color);
+            font-size: 12px;
+        }
+
+        .preview-stats strong {
+            display: block;
+            color: var(--black-color);
+            font-size: 16px;
+        }
+
+        .preview-message-btn {
+            width: 100%;
+            min-height: 38px;
+            border-radius: 6px;
+            border: 1px solid #dbe3ec;
+            color: var(--paragraph-color);
+            background: #f7f8fb;
+            font-weight: 700;
+        }
+
+        .landing-section {
+            padding: 48px 0;
+        }
+
+        .section-heading {
+            max-width: 620px;
+            margin: 0 auto 28px;
+            text-align: center;
+        }
+
+        .section-heading span {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: var(--main-color);
+            font-weight: 800;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 12px;
+            font-size: 36px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .feature-card {
+            min-height: 310px;
+            overflow: hidden;
+            border-radius: 8px;
+            background: var(--white-color);
+            border: 1px solid #edf1f5;
+            box-shadow: 0 10px 30px rgba(81, 83, 85, .05);
+        }
+
+        .feature-media {
+            position: relative;
+            height: 118px;
+            overflow: hidden;
+        }
+
+        .feature-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .feature-media::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 20%, rgba(25, 135, 84, .28) 100%);
+        }
+
+        .feature-icon {
+            position: relative;
+            z-index: 1;
+            width: 52px;
+            height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: -26px 24px 18px;
+            border-radius: 8px;
+            color: var(--main-color);
+            background: var(--white-color);
+            box-shadow: 0 12px 24px rgba(81, 83, 85, .12);
+            font-size: 24px;
+        }
+
+        .feature-card-body {
+            padding: 0 24px 24px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .community-band {
+            padding: 34px;
+            border-radius: 8px;
+            background: var(--white-color);
+            border: 1px solid #edf1f5;
+            box-shadow: 0 10px 30px rgba(81, 83, 85, .05);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .community-band h2 {
+            margin-bottom: 8px;
+            font-size: 30px;
+        }
+
+        .community-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            gap: 12px;
+        }
+
+        .metric-card {
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            background: #f7f8fb;
+        }
+
+        .metric-card strong {
+            display: block;
+            color: var(--main-color);
+            font-family: var(--heading-font-family);
+            font-size: 26px;
+        }
+
+        .metric-card span {
+            color: var(--paragraph-color);
+            font-size: 13px;
+        }
+
+        .landing-cta {
+            margin: 48px 0;
+            padding: 42px 28px;
+            border-radius: 8px;
+            text-align: center;
+            background: linear-gradient(rgba(25, 135, 84, .92), rgba(25, 135, 84, .92)), url("/assets/images/my-profile-bg.jpg") center/cover;
+            box-shadow: 0 16px 36px rgba(25, 135, 84, .18);
+        }
+
+        .landing-cta h2,
+        .landing-cta p {
+            color: var(--white-color);
+        }
+
+        .landing-cta h2 {
+            margin-bottom: 10px;
+            font-size: 34px;
+        }
+
+        .landing-cta p {
+            max-width: 560px;
+            margin: 0 auto 22px;
+            opacity: .9;
+        }
+
+        .landing-cta .landing-btn {
+            color: var(--main-color);
+            background: var(--white-color);
+        }
+
+        .landing-footer {
+            padding: 24px 0 34px;
+            color: var(--paragraph-color);
+            text-align: center;
+            font-size: 14px;
+        }
+
+        @@media only screen and (max-width: 1199px) {
+            .landing-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app-preview {
+                max-width: 760px;
+                margin: 0 auto;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media only screen and (max-width: 767px) {
+            .landing-container {
+                width: min(100% - 24px, 1180px);
+            }
+
+            .landing-nav {
+                min-height: auto;
+                padding: 14px 0;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .landing-actions {
+                width: 100%;
+            }
+
+            .landing-actions .landing-btn {
+                flex: 1;
+                padding: 0 12px;
+            }
+
+            .landing-hero {
+                padding: 44px 0 30px;
+            }
+
+            .landing-hero h1 {
+                font-size: 40px;
+            }
+
+            .landing-proof {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .app-preview-banner {
+                min-height: 110px;
+                padding: 20px;
+            }
+
+            .app-preview-banner h2 {
+                font-size: 26px;
+            }
+
+            .preview-online {
+                display: none;
+            }
+
+            .app-preview-body {
+                grid-template-columns: 1fr;
+                padding: 14px;
+            }
+
+            .feature-grid,
+            .community-band,
+            .community-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .community-band {
+                padding: 24px;
+            }
+
+            .landing-section {
+                padding: 34px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-page">
+        <header class="landing-header">
+            <div class="landing-container landing-nav">
+                <a class="landing-brand" href="/">
+                    <img src="~/assets/images/zust-logo.svg" alt="Zust">
+                </a>
+
+                <div class="landing-actions">
+                    <a class="landing-btn landing-btn-secondary" href="/account/login">Log In</a>
+                    <a class="landing-btn landing-btn-primary" href="/account/register">Create Account</a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="landing-hero">
+                <div class="landing-container landing-hero-grid">
+                    <div>
+                        <span class="landing-eyebrow"><i class="ri-group-line"></i> Your people, all in one place</span>
+                        <h1>Share what matters with the people who matter.</h1>
+                        <p>Zust brings posts, friends, chats, notifications, and profiles together in a clean social space that feels familiar from the first click.</p>
+
+                        <div class="landing-hero-actions">
+                            <a class="landing-btn landing-btn-primary" href="/account/register">Create Account</a>
+                            <a class="landing-btn landing-btn-secondary" href="/account/login">Log In</a>
+                        </div>
+
+                        <div class="landing-proof">
+                            <div class="avatar-stack">
+                                <img src="~/assets/images/user/user-1.jpg" alt="Member avatar">
+                                <img src="~/assets/images/user/user-10.jpg" alt="Member avatar">
+                                <img src="~/assets/images/user/user-27.jpg" alt="Member avatar">
+                                <img src="~/assets/images/user/user-39.jpg" alt="Member avatar">
+                            </div>
+                            <span>Follow updates, message friends, and discover familiar faces from one friendly dashboard.</span>
+                        </div>
+                    </div>
+
+                    <div class="app-preview" aria-label="Zust app preview">
+                        <div class="app-preview-banner">
+                            <h2>Friends</h2>
+                            <div class="preview-online"><span></span> Live community</div>
+                        </div>
+
+                        <div class="app-preview-body">
+                            <div class="preview-card preview-feed">
+                                <div class="preview-author">
+                                    <img src="~/assets/images/user/user-13.jpg" alt="Aisha avatar">
+                                    <div>
+                                        <strong>Aisha Hassan</strong>
+                                        <span>Shared a new memory</span>
+                                    </div>
+                                </div>
+                                <img class="preview-post-image" src="~/assets/images/news-feed-post/post-3.jpg" alt="Feed post preview">
+                                <div class="preview-reactions">
+                                    <span><i class="ri-heart-3-fill"></i> 128 Likes</span>
+                                    <span><i class="ri-chat-3-line"></i> 36 Comments</span>
+                                    <span><i class="ri-share-forward-line"></i> Share</span>
+                                </div>
+                            </div>
+
+                            <div class="preview-side">
+                                <div class="preview-card preview-list">
+                                    <h3>Chats</h3>
+                                    <div class="preview-list-item">
+                                        <img src="~/assets/images/user/user-56.jpg" alt="Olivia avatar">
+                                        <div>
+                                            <strong>Olivia Chen</strong>
+                                            <span>Sent a message</span>
+                                        </div>
+                                    </div>
+                                    <div class="preview-list-item">
+                                        <img src="~/assets/images/user/user-58.jpg" alt="Nina avatar">
+                                        <div>
+                                            <strong>Nina Lopez</strong>
+                                            <span>Reacted to your post</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="preview-card preview-friend">
+                                    <div class="preview-friend-cover"></div>
+                                    <div class="preview-friend-body">
+                                        <img src="~/assets/images/user/user-32.jpg" alt="Lily avatar">
+                                        <h3>Lily Cohen</h3>
+                                        <p>user1660@zust.demo</p>
+                                        <div class="preview-stats">
+                                            <span><strong>191</strong>Likes</span>
+                                            <span><strong>41</strong>Following</span>
+                                            <span><strong>41</strong>Followers</span>
+                                        </div>
+                                        <button class="preview-message-btn" type="button">Send Message</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="landing-section">
+                <div class="landing-container">
+                    <div class="section-heading">
+                        <span>Everything social</span>
+                        <h2>Built around the workflows people already expect.</h2>
+                        <p>From posting a moment to finding a friend, Zust keeps everyday social actions clear, fast, and easy to scan.</p>
+                    </div>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-media">
+                                <img src="~/assets/images/news-feed-post/post-1.jpg" alt="News feed post preview">
+                            </div>
+                            <div class="feature-icon"><i class="ri-newspaper-line"></i></div>
+                            <div class="feature-card-body">
+                                <h3>News Feed</h3>
+                                <p>Share updates, photos, and videos in a feed designed for quick reading and natural interaction.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-media">
+                                <img src="~/assets/images/friends/friends-bg-12.jpg" alt="Friends profile cover preview">
+                            </div>
+                            <div class="feature-icon"><i class="ri-user-add-line"></i></div>
+                            <div class="feature-card-body">
+                                <h3>Friends</h3>
+                                <p>Follow people, manage requests, and see meaningful profile cards with activity at a glance.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-media">
+                                <img src="~/assets/images/live-chat-bg.jpg" alt="Chat feature preview">
+                            </div>
+                            <div class="feature-icon"><i class="ri-message-3-line"></i></div>
+                            <div class="feature-card-body">
+                                <h3>Chats</h3>
+                                <p>Move from a profile to a conversation quickly with focused chat lists and message views.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-media">
+                                <img src="~/assets/images/my-profile-bg.jpg" alt="Profile cover preview">
+                            </div>
+                            <div class="feature-icon"><i class="ri-profile-line"></i></div>
+                            <div class="feature-card-body">
+                                <h3>Profiles</h3>
+                                <p>Give every user a recognizable profile with avatars, covers, posts, stats, and personal details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="landing-section">
+                <div class="landing-container">
+                    <div class="community-band">
+                        <div>
+                            <h2>A familiar social space from day one.</h2>
+                            <p>The public page uses the same cards, avatars, and green active states as the app, so signing in feels like a continuation instead of a context switch.</p>
+                        </div>
+
+                        <div class="community-metrics">
+                            <div class="metric-card">
+                                <strong>4</strong>
+                                <span>Core areas</span>
+                            </div>
+                            <div class="metric-card">
+                                <strong>60+</strong>
+                                <span>Avatar styles</span>
+                            </div>
+                            <div class="metric-card">
+                                <strong>1</strong>
+                                <span>Clean dashboard</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="landing-container">
+                <div class="landing-cta">
+                    <h2>Start your Zust circle today.</h2>
+                    <p>Create a profile, find friends, share posts, and keep conversations close in one clean social dashboard.</p>
+                    <a class="landing-btn" href="/account/register">Create Account</a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="landing-footer">
+            <div class="landing-container">
+                <span>© 2026 Zust. Built for simple, friendly social connection.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

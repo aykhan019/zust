@@ -176,10 +176,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Configure routes
-app.MapControllerRoute(name: "Default", pattern: "{controller=Home}/{action=Index}");
+app.MapControllerRoute(name: "Default", pattern: "{controller=Account}/{action=Landing}");
 app.MapHub<UserHub>("/userhub");
-
-// Redirect the root URL to the home page.
-app.UseRewriter(new RewriteOptions().AddRedirect("^$", "/home/index"));
 
 app.Run();

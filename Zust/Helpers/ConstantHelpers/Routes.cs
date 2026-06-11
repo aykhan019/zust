@@ -16,6 +16,11 @@
         public const string Account = "account";
 
         /// <summary>
+        /// Represents the public landing page route.
+        /// </summary>
+        public const string Landing = "landing";
+
+        /// <summary>
         /// Represents the forgot password page route.
         /// </summary>
         public const string ForgotPassword = "forgot-password";
