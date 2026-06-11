@@ -1,0 +1,19 @@
+{
+  "AppSettings": {
+    "Token": "replace-with-a-long-random-dev-secret"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Default": "Host=localhost;Port=5432;Database=zust;Username=postgres;Password=postgres"
+  },
+  "CloudinarySettings": {
+    "CloudName": "your-cloud-name",
+    "ApiKey": "your-api-key",
+    "ApiSecret": "your-api-secret"
+  }
+}

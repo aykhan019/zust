@@ -36,12 +36,22 @@ namespace Zust.Web.Concrete
             _configuration = configuration;
             _cloudinarySettings = _configuration.GetSection(Constants.CloudinarySettings)
                                                 .Get<CloudinarySettings>();
+
+            if (_cloudinarySettings is null
+                || string.IsNullOrWhiteSpace(_cloudinarySettings.CloudName)
+                || string.IsNullOrWhiteSpace(_cloudinarySettings.ApiKey)
+                || string.IsNullOrWhiteSpace(_cloudinarySettings.ApiSecret))
+            {
+                // Cloudinary is not configured (e.g. local dev without credentials).
+                // The app still starts; media uploads will fail fast at call time.
+                throw new InvalidOperationException(
+                    "Cloudinary is not configured. Set CloudinarySettings (CloudName, ApiKey, ApiSecret) " +
+                    "via environment variables or appsettings.Development.json to enable media uploads.");
+            }
+
             Account account = new(
-
                 _cloudinarySettings.CloudName,
-
                 _cloudinarySettings.ApiKey,
-
                 _cloudinarySettings.ApiSecret
             );
 

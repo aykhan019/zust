@@ -1,0 +1,34 @@
+# Render Blueprint for the Zust Social Media App.
+# Deploys the ASP.NET Core app as a Docker web service.
+# Database is hosted on Supabase (PostgreSQL) — set ConnectionStrings__Default in the
+# Render dashboard (kept out of this file so no secret is committed).
+services:
+  - type: web
+    name: zust
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    # /Account/Login returns 200 for anonymous requests (the app's protected pages
+    # 302-redirect to it), so it is a reliable health check target.
+    healthCheckPath: /Account/Login
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # --- Set these in the Render dashboard (marked sync:false so they are not in git) ---
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: AppSettings__Token
+        sync: false
+      - key: CloudinarySettings__CloudName
+        sync: false
+      - key: CloudinarySettings__ApiKey
+        sync: false
+      - key: CloudinarySettings__ApiSecret
+        sync: false
+      # Optional: comma-separated extra CORS origins (only needed for an external frontend)
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Optional: set to "true" once to seed demo users/posts, then remove
+      - key: SEED_DEMO_DATA
+        sync: false

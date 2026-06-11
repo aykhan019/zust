@@ -35,16 +35,21 @@ namespace Zust.Core.Concrete.EntityFramework
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var configBuilder = new ConfigurationBuilder()
+                // This path is used at design time (e.g. `dotnet ef migrations`).
+                // Runtime configuration is supplied via DI in Program.cs.
+                var configuration = new ConfigurationBuilder()
                         .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                        .AddJsonFile(Constants.AppSettingsFile, optional: true, reloadOnChange: true);
+                        .AddJsonFile(Constants.AppSettingsFile, optional: true, reloadOnChange: true)
+                        .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                        .AddEnvironmentVariables()
+                        .Build();
 
-                IConfiguration configuration = configBuilder.Build();
+                // Read the connection string (ConnectionStrings:Default or DATABASE_URL).
+                // Falls back to a local placeholder so `migrations add` works without a live DB.
+                var connectionString = DbConnectionHelper.Resolve(configuration)
+                    ?? "Host=localhost;Port=5432;Database=zust;Username=postgres;Password=postgres";
 
-                // Read the connection string
-                string connectionString = configuration.GetConnectionString(Constants.Default);
-
-                optionsBuilder.UseSqlServer(connectionString);
+                optionsBuilder.UseNpgsql(connectionString);
             }
 
             base.OnConfiguring(optionsBuilder);

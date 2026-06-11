@@ -1,0 +1,24 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# IDE / VCS
+.git/
+.gitignore
+.vs/
+.vscode/
+.idea/
+*.user
+
+# Local secrets / env (never bake into the image)
+**/appsettings.Development.json
+**/appsettings.*.Local.json
+.env
+*.env
+
+# Docs / misc
+README.md
+LICENSE
+*.md
+Database/
