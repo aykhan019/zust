@@ -34,7 +34,7 @@ namespace Zust.Web.Concrete
         /// <param name="configuration">The configuration object providing access to Cloudinary settings.</param>
         /// <remarks>
         /// This constructor never throws when Cloudinary is unconfigured. Doing so would take down
-        /// every endpoint whose dependency graph touches <see cref="IMediaService"/> — including
+        /// every endpoint whose dependency graph touches <see cref="IMediaService"/> - including
         /// read-only endpoints (feed, followers, profile) that never upload anything. Instead the
         /// service is created in a disabled state and only <see cref="UploadMediaAsync"/> fails fast.
         /// </remarks>

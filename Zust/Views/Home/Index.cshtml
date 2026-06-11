@@ -186,7 +186,7 @@
        Pin the whole feed row to the viewport height (its exact height is set from JS via
        --feed-height, so it works regardless of the navbar height). Each column then fills
        that height and scrolls on its own, so the short side widgets (profile / single ad /
-       today's birthdays) stay put and never leave empty space beside the posts — only the
+       today's birthdays) stay put and never leave empty space beside the posts - only the
        posts column actually scrolls. Disabled on small screens (where the columns stack)
        so the page falls back to normal scrolling. */
     @@media only screen and (min-width: 992px) {
@@ -218,7 +218,7 @@
             scrollbar-width: thin;
         }
 
-        /* The center column itself shouldn't scroll as a whole — its inner posts area does. */
+        /* The center column itself shouldn't scroll as a whole - its inner posts area does. */
         #feed-row .col-lg-6.feed-col {
             overflow: hidden;
         }
@@ -533,7 +533,7 @@
                 // Insert the just-shared post at the very top of the feed without wiping the
                 // posts already on screen, so the user immediately sees it as the first post.
                 // (It may no longer be there after a reload, since the feed is rebuilt from the
-                // server — that's expected; this is the instant visual confirmation.)
+                // server - that's expected; this is the instant visual confirmation.)
                 var newPostHtml = await createPostHtml(newPost);
                 document.getElementById("posts-container").insertAdjacentHTML("afterbegin", newPostHtml);
 
@@ -1063,7 +1063,7 @@
     // Pin the feed row to fill the space between its top (just under the fixed navbar) and the
     // bottom of the viewport. Measuring the row's offset keeps this exact regardless of the
     // navbar's height. With the row height fixed, the side widgets stay put and only the posts
-    // column scrolls — so no empty space is left beside the posts. Only runs on wide screens;
+    // column scrolls - so no empty space is left beside the posts. Only runs on wide screens;
     // below 992px the columns stack and the page scrolls normally.
     function sizeFeed() {
         var row = document.getElementById("feed-row");

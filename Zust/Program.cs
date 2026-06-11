@@ -96,7 +96,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
-// CORS — origins come from configuration/env (ALLOWED_ORIGINS, comma separated).
+// CORS - origins come from configuration/env (ALLOWED_ORIGINS, comma separated).
 // The app is server-rendered and same-origin, so this only matters if you add an
 // external frontend later. Defaults to the local HTTPS dev origin.
 var allowedOrigins = (builder.Configuration["ALLOWED_ORIGINS"] ?? "https://localhost:7009")

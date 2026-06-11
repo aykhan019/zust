@@ -425,7 +425,7 @@
             allContent += batchHtml;
             notificationCountInView += notifications.length;
 
-            // Mark the just-shown notifications as read in the background — don't block rendering.
+            // Mark the just-shown notifications as read in the background - don't block rendering.
             var unreadRenderedCount = 0;
             notifications.forEach(function (notification) {
                 if (notification != null && !notification.isRead) {

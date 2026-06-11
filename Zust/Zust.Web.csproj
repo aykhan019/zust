@@ -8,12 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Files\watchVideoUrls.json" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
+  <!-- The Files/ folder holds runtime data (watchVideoUrls.json, advertisements.json,
+       cover/status lists) that StaticService reads at request time. Copy the whole folder
+       to the build AND publish output so pages like /Home/Index work when deployed, not
+       just under `dotnet run` (where the source Files/ folder is the working directory).
+       Remove any default-included items first to avoid duplicate-item build errors. -->
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="Files\watchVideoUrls.json" />
+    <Content Remove="Files\**" />
+    <None Remove="Files\**" />
+    <Content Include="Files\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
